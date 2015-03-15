@@ -57,6 +57,18 @@ peek msg = Parse $ \i -> case i of
 	[] -> (0, Left msg)
 	(token : _) -> (0, Right $ token)
 
+askMaybe :: Parse token msg (Maybe token)
+askMaybe = do
+	token <- peekMaybe
+	advance 1
+	return token
+
+ask :: msg -> Parse (Locate token) msg (Locate token)
+ask msg = do
+	token <- peek msg
+	advance 1
+	return token
+
 test :: Parse token msg Bool -> Parse token msg x -> Parse token msg x -> Parse token msg x
 test condition first other = do
 	c <- condition
