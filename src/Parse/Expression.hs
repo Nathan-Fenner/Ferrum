@@ -16,10 +16,8 @@ parseName = do
 	Locate at token <- ask message
 	case token of
 		TWord name -> do
-			advance 1 -- consume the name
 			return $ Locate at $ Name name
 		_ -> crash message
 
 	where
 		message = Message "expected name"
-
