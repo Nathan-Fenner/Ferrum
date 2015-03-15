@@ -7,10 +7,12 @@ import Location
 
 type Expression = Locate ExpressionValue
 
-data ExpressionValue = Reference String
+data ExpressionValue
+	= Name String
+	deriving Show
 
-parseExpression :: Parse (Locate Token) Message Expression
-parseExpression = do
+parseName :: Parse (Locate Token) Message Expression
+parseName = do
 	Locate at token <- ask message
 	case token of
 		TWord name -> do
