@@ -1,6 +1,7 @@
 
 import Parse.Core
-
+import Location
+import Lex
 
 getLetter :: Parse (Locate at String) Message (Locate at String)
 getLetter = do

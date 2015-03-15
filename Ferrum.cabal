@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable Ferrum
   main-is: Ferrum.hs            
-  other-modules:       Parse, Parse.Core
+  other-modules:       Location, Parse, Parse.Core, Lex
   -- other-extensions:    
   build-depends:       data-fix >= 0.0.1, base >=4.7 && <4.8
   hs-source-dirs:      src

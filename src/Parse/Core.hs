@@ -1,11 +1,10 @@
 
 module Parse.Core where
 
+import Location
 import Control.Applicative
 
-data Location m = Location m | End deriving Show
 
-data Locate m a = Locate { at :: Location m, value :: a } deriving Show
 
 newtype Parse token msg result = Parse { run :: [token] -> (Int, Either msg result ) }
 
