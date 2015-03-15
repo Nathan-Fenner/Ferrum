@@ -4,6 +4,7 @@ module Lex(lexer,Token(TWord,TString,TInt,TDouble,TOperator,TSpecial)) where
 import Location
 
 data Token = TWord String | TString String | TInt Int | TDouble Double | TOperator String | TSpecial String
+	deriving (Show, Eq)
 
 tabSize :: Int
 tabSize = 4
