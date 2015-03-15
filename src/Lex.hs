@@ -47,6 +47,7 @@ lexer file source = go (1,1) source where
 		next sym = goString start (line, col+2) (sofar ++ sym) ct
 	goString (startLine, startCol) (line, col) sofar ('"' : ct) = Locate (Location (file, startLine, startCol)) (TString sofar)
 		: go (line, col+1) ct
+	goString start (line, col) sofar (ch:ct) = goString start (line, col+1) (sofar ++ [ch]) ct
 
 
 	con pos@(line,col) fun pred cs = location (fun word) : go (line,col + length word) (dropWhile pred cs) where

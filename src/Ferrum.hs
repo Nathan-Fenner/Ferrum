@@ -8,4 +8,4 @@ import Lex
 
 main = do
 	source <- readFile "test.txt"
-	print $ lexer "test.txt" source
+	print $ map value $ lexer "test.txt" source
