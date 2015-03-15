@@ -12,7 +12,7 @@ tabSize = 4
 startsWith :: String -> String -> Bool
 x `startsWith` y = take (length y) x == y
 
-lexer :: FilePath -> String -> [Locate (FilePath, Int, Int) Token]
+lexer :: FilePath -> String -> [Locate Token]
 lexer file source = go (0,0) source where
 	go pos [] = []
 	go pos@(line,col) cs@(ch : ct)

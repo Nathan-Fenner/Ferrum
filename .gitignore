@@ -44,3 +44,4 @@ Temporary Items
 *.hi
 *.o
 *.exe
+dist/setup-config

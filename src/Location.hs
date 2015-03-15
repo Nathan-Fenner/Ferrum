@@ -1,5 +1,7 @@
 module Location where
 
-data Location m = Location m | End deriving Show
+import System.IO
 
-data Locate m a = Locate { at :: Location m, value :: a } deriving Show
+data Location = Location (FilePath, Int, Int) | End deriving Show
+
+data Locate a = Locate { at :: Location, value :: a } deriving Show

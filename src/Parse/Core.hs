@@ -35,12 +35,12 @@ newtype Message = Message String deriving Show
 advance :: Int -> Parse x msg ()
 advance n = Parse $ const (n, Right ())
 
-peekLocation :: [Locate loc token] -> Location loc
+peekLocation :: [Locate token] -> Location
 peekLocation [] = End
 peekLocation (Locate {at = loc} : _) = loc
 
 
-expectString :: String -> Message -> Parse (Locate at String) Message ()
+expectString :: String -> Message -> Parse (Locate String) Message ()
 expectString string message = Parse $ \i -> case i of
 	[] -> (0, Left message)
 	(Locate m t : _) -> if t == string then
@@ -52,7 +52,7 @@ peekMaybe = Parse $ \i -> case i of
 	[] -> (0, Right Nothing)
 	(token : _) -> (0, Right $ Just token)
 
-peek :: msg -> Parse (Locate at token) msg (Locate at token)
+peek :: msg -> Parse (Locate token) msg (Locate token)
 peek msg = Parse $ \i -> case i of
 	[] -> (0, Left msg)
 	(token : _) -> (0, Right $ token)
@@ -80,7 +80,7 @@ manyUntil check thing = go where
 crash :: msg -> Parse token msg result
 crash msg = Parse $ const (0, Left msg)
 
-check :: (token -> Bool) -> Parse (Locate at token) msg Bool
+check :: (token -> Bool) -> Parse (Locate token) msg Bool
 check fun = do
 	next <- peekMaybe
 	case next of
