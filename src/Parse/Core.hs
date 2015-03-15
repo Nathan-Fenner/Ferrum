@@ -91,14 +91,3 @@ check fun = do
 		Nothing -> return $ False
 		Just (Locate _at thing) -> return $ fun thing
 
-{-
-expectString :: String -> Message -> Message -> Parse at String Message ()
-expectString string other end = Parse go where
-	go [] = (0, Left end)
-	go (Locate {value = t} : _)
-		|t == string = (1, Right ())
-		|otherwise = (0, Left other)
-
-		-}
-
-
