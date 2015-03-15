@@ -6,14 +6,14 @@ import Control.Applicative
 
 
 
-newtype Parse token msg result = Parse { run :: [token] -> (Int, Either msg result ) }
+newtype Parse token result = Parse { run :: [token] -> (Int, Either Message result ) }
 
-instance Functor (Parse token msg) where
+instance Functor (Parse token) where
 	fmap f (Parse g) = Parse $ \i -> let (a, r) = g i in case r of
 		Left msg -> (a, Left msg)
 		Right result -> (a, Right $ f result)
 
-instance Applicative (Parse token msg) where
+instance Applicative (Parse token) where
 	pure x = Parse $ \i -> (0, Right x)
 	
 	Parse f <*> Parse g = Parse $ \i -> let (af, rf) = f i in case rf of
@@ -24,7 +24,7 @@ instance Applicative (Parse token msg) where
 		where
 
 
-instance Monad (Parse token msg) where
+instance Monad (Parse token) where
 	return x = pure x
 	Parse f >>= into = Parse $ \i -> let (af, rf) = f i in case rf of
 		Left msg -> (af, Left msg)
@@ -32,7 +32,7 @@ instance Monad (Parse token msg) where
 
 newtype Message = Message String deriving Show
 
-advance :: Int -> Parse x msg ()
+advance :: Int -> Parse x ()
 advance n = Parse $ const (n, Right ())
 
 peekLocation :: [Locate token] -> Location
@@ -40,41 +40,41 @@ peekLocation [] = End
 peekLocation (Locate {at = loc} : _) = loc
 
 
-expectString :: String -> Message -> Parse (Locate String) Message ()
+expectString :: String -> Message -> Parse (Locate String) ()
 expectString string message = Parse $ \i -> case i of
 	[] -> (0, Left message)
 	(Locate m t : _) -> if t == string then
 		(1, Right ())
 		else (0, Left message)
 
-peekMaybe :: Parse token msg (Maybe token)
+peekMaybe :: Parse token (Maybe token)
 peekMaybe = Parse $ \i -> case i of
 	[] -> (0, Right Nothing)
 	(token : _) -> (0, Right $ Just token)
 
-peek :: msg -> Parse (Locate token) msg (Locate token)
+peek :: Message -> Parse (Locate token) (Locate token)
 peek msg = Parse $ \i -> case i of
 	[] -> (0, Left msg)
 	(token : _) -> (0, Right $ token)
 
-askMaybe :: Parse token msg (Maybe token)
+askMaybe :: Parse token (Maybe token)
 askMaybe = do
 	token <- peekMaybe
 	advance 1
 	return token
 
-ask :: msg -> Parse (Locate token) msg (Locate token)
+ask :: Message -> Parse (Locate token) (Locate token)
 ask msg = do
 	token <- peek msg
 	advance 1
 	return token
 
-test :: Parse token msg Bool -> Parse token msg x -> Parse token msg x -> Parse token msg x
+test :: Parse token Bool -> Parse token x -> Parse token x -> Parse token x
 test condition first other = do
 	c <- condition
 	if c then first else other
 
-manyWhile :: Parse token msg Bool -> Parse token msg x -> Parse token msg [x]
+manyWhile :: Parse token Bool -> Parse token x -> Parse token [x]
 manyWhile check thing = go where
 	go = test check (do
 		x <- thing
@@ -82,17 +82,17 @@ manyWhile check thing = go where
 		return $ x : xs) (return [])
 
 
-manyUntil :: Parse token msg Bool -> Parse token msg x -> Parse token msg [x]
+manyUntil :: Parse token Bool -> Parse token x -> Parse token [x]
 manyUntil check thing = go where
 	go = test check (return []) (do
 		x <- thing
 		xs <- go
 		return $ x : xs)
 
-crash :: msg -> Parse token msg result
+crash :: Message -> Parse token result
 crash msg = Parse $ const (0, Left msg)
 
-check :: (token -> Bool) -> Parse (Locate token) msg Bool
+check :: (token -> Bool) -> Parse (Locate token) Bool
 check fun = do
 	next <- peekMaybe
 	case next of

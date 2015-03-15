@@ -11,13 +11,13 @@ data ExpressionValue
 	= Name String
 	deriving Show
 
-parseName :: Parse (Locate Token) Message Expression
+parseName :: Parse (Locate Token) Expression
 parseName = do
 	Locate at token <- ask message
 	case token of
 		TWord name -> do
 			advance 1 -- consume the name
-			return $ Locate at $ Reference name
+			return $ Locate at $ Name name
 		_ -> crash message
 
 	where
