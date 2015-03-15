@@ -46,6 +46,24 @@ parseProduct' = do
 parseProduct :: Parse Expression
 parseProduct = fmap flattenLeft parseProduct'
 
+parseInfix' :: [String] -> Parse Expression -> Parse OpTree
+parseInfix' ops atom = do
+	left <- atom
+	next <- peekMaybe
+	case next of
+		Just (Locate at (TOperator op)) -> if op `elem` ops then do
+			right <- parseInfix' ops atom
+			return $ OpBranch (OpAtom left) (Locate at op) right
+			else
+				return $ OpAtom left
+		_ -> return $ OpAtom left
+
+parseInfixLeft :: [String] -> Parse Expression -> Parse Expression
+parseInfixLeft ops atom = fmap flattenLeft $ parseInfix' ops atom
+
+parseInfixRight :: [String] -> Parse Expression -> Parse Expression
+parseInfixRight ops atom = fmap flattenRight $ parseInfix' ops atom
+
 locateTree :: OpTree -> Location
 locateTree (OpAtom (Locate at _)) = at
 locateTree (OpBranch left _ _) = locateTree left
