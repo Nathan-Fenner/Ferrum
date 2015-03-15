@@ -11,7 +11,7 @@ data ExpressionValue
 	= Name String
 	deriving Show
 
-parseName :: Parse (Locate Token) Expression
+parseName :: Parse Expression
 parseName = do
 	Locate at token <- ask message
 	case token of
