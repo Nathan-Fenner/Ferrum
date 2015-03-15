@@ -12,6 +12,7 @@ data ExpressionValue
 	| LiteralInt Int
 	| LiteralString String
 	| Operator Expression (Locate String) Expression
+	| Prefix (Locate String) Expression
 	deriving Show
 
 
@@ -31,13 +32,25 @@ data OpTree = OpAtom Expression | OpBranch OpTree (Locate String) OpTree
 parseProduct :: Parse Expression
 parseProduct = parseInfixLeft ["*","/","%"] parseAtom
 
+parsePrefix :: [String] -> Parse Expression -> Parse Expression
+parsePrefix ops atom = do
+	next <- peekMaybe
+	case next of
+		Just (Locate at (TOperator op)) -> if op `elem` ops then do
+				advance 1 -- advance past this operator
+				value <- parsePrefix ops atom
+				return $ Locate at $ Prefix (Locate at op) value
+			else
+				atom
+
 parseInfix' :: [String] -> Parse Expression -> Parse OpTree
 parseInfix' ops atom = do
 	left <- atom
 	next <- peekMaybe
 	case next of
 		Just (Locate at (TOperator op)) -> if op `elem` ops then do
-			right <- parseInfix' ops atom
+			advance 1 -- need to advance since we only 'peeked' next
+			right <- parseInfix' ops atom -- the right side
 			return $ OpBranch (OpAtom left) (Locate at op) right
 			else
 				return $ OpAtom left
