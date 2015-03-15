@@ -9,6 +9,7 @@ type Expression = Locate ExpressionValue
 
 data ExpressionValue
 	= Name String
+	| LiteralInt Int
 	deriving Show
 
 parseName :: Parse Expression
@@ -21,3 +22,12 @@ parseName = do
 
 	where
 		message = Message "expected name"
+
+parseInt :: Parse Expression
+parseInt = do
+	Locate at token <- ask message
+	case token of
+		TInt int -> return $ Locate at $ LiteralInt int
+		_ -> crash message
+	where
+		message = Message "expected literal integer"
