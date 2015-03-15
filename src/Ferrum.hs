@@ -5,4 +5,7 @@ import Location
 import Lex
 
 
-main = print ()
+
+main = do
+	source <- readFile "test.txt"
+	print $ lexer "test.txt" source

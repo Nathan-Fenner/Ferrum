@@ -13,7 +13,7 @@ startsWith :: String -> String -> Bool
 x `startsWith` y = take (length y) x == y
 
 lexer :: FilePath -> String -> [Locate Token]
-lexer file source = go (0,0) source where
+lexer file source = go (1,1) source where
 	go pos [] = []
 	go pos@(line,col) cs@(ch : ct)
 		|isLetter ch = con pos (\name -> if name `elem` ops then TOperator name else TWord name) isLetter cs
