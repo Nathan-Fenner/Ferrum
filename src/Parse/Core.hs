@@ -35,9 +35,9 @@ newtype Message = Message String deriving Show
 advance :: Int -> Parse ()
 advance n = Parse $ const (n, Right ())
 
-peekLocation :: [Locate token] -> Location
-peekLocation [] = End
-peekLocation (Locate {at = loc} : _) = loc
+peekLocation :: FilePath -> [Locate token] -> Location
+peekLocation file [] = End file
+peekLocation _file (Locate {at = loc} : _) = loc
 
 peekMaybe :: Parse (Maybe (Locate Token))
 peekMaybe = Parse $ \i -> case i of

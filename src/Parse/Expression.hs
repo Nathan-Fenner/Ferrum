@@ -15,11 +15,22 @@ data ExpressionValue
 	| Prefix (Locate String) Expression
 	deriving Show
 
+parseExpression :: Parse Expression
+parseExpression = undefined
 
 parseAtom :: Parse Expression
 parseAtom = do
 	Locate at token <- ask message
 	case token of
+		TSpecial "(" -> do
+			expr <- parseExpression
+			Locate parenAt closeParen <- ask parenMessage
+			case closeParen of
+				TSpecial ")" -> return expr
+				_ -> crash parenMessage
+			where
+			parenMessage = Message $ "expected `)` to close `(` from " ++ displayLocation at
+
 		TWord name -> return $ Locate at $ Name name
 		TInt int -> return $ Locate at $ LiteralInt int
 		TString string -> return $ Locate at $ LiteralString string
