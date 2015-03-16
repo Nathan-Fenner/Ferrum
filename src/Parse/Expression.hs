@@ -16,7 +16,7 @@ data ExpressionValue
 	deriving Show
 
 parseExpression :: Parse Expression
-parseExpression = undefined
+parseExpression = parseOperator
 
 parseAtom :: Parse Expression
 parseAtom = do
@@ -90,3 +90,19 @@ flattenRight (OpBranch (OpBranch left op1 middle) op2 right) = flattenRight $
 	OpBranch left op1 (OpBranch middle op2 right)
 flattenRight (OpBranch left op right) = Locate (locateTree left)
 	$ Operator (flattenRight left) op (flattenRight right)
+
+parseOperators :: [Parse Expression -> Parse Expression] -> Parse Expression
+parseOperators [] = parseAtom
+parseOperators (fun : rest) = fun $ parseOperators rest
+
+parseOperator :: Parse Expression
+parseOperator = parseOperators
+	[ parseInfixLeft ["or"]
+	, parseInfixLeft ["and"]
+	, parsePrefix ["not"]
+	, parseInfixLeft ["==","~=",">=","<=",">","<"]
+	, parseInfixRight ["++"]
+	, parseInfixLeft ["+","-"]
+	, parsePrefix ["+","-"]
+	, parseInfixLeft ["*", "/", "%"]
+	]
