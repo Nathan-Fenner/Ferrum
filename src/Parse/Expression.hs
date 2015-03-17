@@ -13,6 +13,9 @@ data ExpressionValue
 	| LiteralString String
 	| Operator Expression (Locate String) Expression
 	| Prefix (Locate String) Expression
+	| Call Expression [Expression]
+	| Index Expression Expression
+	| Dot Expression (Locate String)
 	deriving Show
 
 parseExpression :: Parse Expression
@@ -37,6 +40,73 @@ parseAtom = do
 		_ -> crash message
 	where
 		message = Message "expected literal"
+
+data Suffix = SuffixCall [Expression] | SuffixIndex Expression | SuffixDot (Locate String) deriving Show
+
+parseSuffix :: Parse (Maybe (Locate Suffix))
+parseSuffix = do
+	whole <- peekMaybe
+	case whole of
+		Nothing -> return Nothing
+		Just (Locate at token) -> case token of
+			TSpecial "(" -> do -- it's a function call
+				advance 1 -- to skip the `(`
+				next <- peekMaybe
+				case next of
+					Nothing -> crash $ Message $ "expected `)` to close `(` that opened function call at " ++ displayLocation at
+					Just (Locate _at' (TSpecial ")")) -> do
+						advance 1
+						return $ Just $ Locate at $ SuffixCall []
+					Just (Locate _at' (TSpecial ",")) -> crash $ Message $ "expected `)` to close open `(` or expression before `,` at " ++ displayLocation at
+					_ -> do
+						-- there's at least one expression inside
+						first <- parseExpression
+						rest <- manyWhile (do
+								x <- peekMaybe
+								case x of
+									Just (Locate _ (TSpecial ",")) -> return True
+									_ -> return False
+							)
+							(do
+								advance 1 -- skip the `,`
+								parseExpression
+								)
+						-- next we expect to find a `)`
+						closing <- peekMaybe
+						case closing of
+							Just (Locate _at (TSpecial ")")) -> return ()
+							_ -> crash $ Message $ "expected `)` to close opening `(` at " ++ displayLocation at
+						advance 1 -- skip the `)`
+						return $ Just $ Locate at $ SuffixCall $ first : rest
+			TSpecial "[" -> do
+				advance 1 -- skip the `[`
+				index <- parseExpression
+				next <- peekMaybe
+				case next of
+					Just (Locate _at (TSpecial "]")) -> do
+						advance 1
+						return $ Just $ Locate at $ SuffixIndex index
+					_ -> crash $ Message $ "expected `]` to close opening `[` at " ++ displayLocation at
+			TSpecial "." -> do
+				advance 1 -- skip the `.`
+				next <- peekMaybe
+				case next of
+					Just (Locate nameAt (TWord name)) -> do
+						advance 1
+						return $ Just $ Locate at $ SuffixDot $ Locate nameAt name
+					_ -> crash $ Message $ "expected name to follow `.`"
+
+parseSuffixes :: Parse [Locate Suffix]
+parseSuffixes = manyMaybe parseSuffix
+
+applySuffix :: Expression -> Locate Suffix -> Expression
+applySuffix fun@(Locate funAt _) (Locate at (SuffixCall call)) = Locate funAt $ Call fun call
+applySuffix arg@(Locate argAt _) (Locate at (SuffixIndex index)) = Locate argAt $ Index arg index
+applySuffix expr@(Locate exprAt _) (Locate at (SuffixDot name)) = Locate exprAt $ Dot expr name
+
+applySuffixes :: Expression -> [Locate Suffix] -> Expression
+applySuffixes e [] = e
+applySuffixes e (s : ss) = applySuffixes (e `applySuffix` s) ss
 
 data OpTree = OpAtom Expression | OpBranch OpTree (Locate String) OpTree
 

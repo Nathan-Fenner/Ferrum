@@ -81,6 +81,15 @@ manyUntil check thing = go where
 		xs <- go
 		return $ x : xs)
 
+manyMaybe :: Parse (Maybe x) -> Parse [x]
+manyMaybe fun = do
+	x <- fun
+	case x of
+		Nothing -> return []
+		Just t -> do
+			r <- manyMaybe fun
+			return $ t : r
+
 crash :: Message -> Parse result
 crash msg = Parse $ const (0, Left msg)
 
