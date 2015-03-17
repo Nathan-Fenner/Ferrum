@@ -40,9 +40,6 @@ parseAtom = do
 
 data OpTree = OpAtom Expression | OpBranch OpTree (Locate String) OpTree
 
-parseProduct :: Parse Expression
-parseProduct = parseInfixLeft ["*","/","%"] parseAtom
-
 parsePrefix :: [String] -> Parse Expression -> Parse Expression
 parsePrefix ops atom = do
 	next <- peekMaybe
