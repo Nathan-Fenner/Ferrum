@@ -12,12 +12,19 @@ tabSize = 4
 startsWith :: String -> String -> Bool
 x `startsWith` y = take (length y) x == y
 
+specialWords :: [String]
+specialWords = ["var","if","while"]
+
 lexer :: FilePath -> String -> [Locate Token]
 lexer file source = go (1,1) source where
 	go pos [] = []
 	go pos@(line,col) cs@(ch : ct)
-		|isLetter ch = con pos (\name -> if name `elem` ops then TOperator name else TWord name) isLetter cs
-		|ch `elem` "[](){}.;" = Locate (Location (file, line, col)) (TSpecial [ch]) : go (line,col+1) ct
+		|isLetter ch = con
+			pos
+			(\name -> if name `elem` ops then TOperator name else if name `elem` specialWords then TSpecial name else TWord name)
+			isLetter
+			cs
+		|ch `elem` "[](){}.:;" = Locate (Location (file, line, col)) (TSpecial [ch]) : go (line,col+1) ct
 		|isDigit ch = con pos (TInt . read) isDigit cs
 		|ch == ' ' = go (line,col+1) ct
 		|ch == '\n' = go (line+1, 1) ct
@@ -56,7 +63,7 @@ lexer file source = go (1,1) source where
 
 
 isLetter :: Char -> Bool
-isLetter x = x `elem` ['a'..'z'] ++ ['A'..'Z'] ++ "_"
+isLetter x = x `elem` ['a'..'z'] ++ ['A'..'Z'] ++ "_#"
 
 isDigit :: Char -> Bool
 isDigit x = x `elem` ['0'..'9']
