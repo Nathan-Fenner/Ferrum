@@ -100,3 +100,25 @@ check fun = do
 		Nothing -> return $ False
 		Just (Locate _at thing) -> return $ fun thing
 
+expect :: Token -> Message -> Parse Location
+expect token message = do
+	at <- expectMaybe token
+	case at of
+		Just x -> return x
+		Nothing -> crash message
+
+expectMaybe :: Token -> Parse (Maybe Location)
+expectMaybe token = do
+	next <- peekMaybe
+	case next of
+		Just (Locate at t) -> if t == token then advance 1 >> return (Just at) else return Nothing
+		_ -> return Nothing
+
+expectName :: Message -> Parse (Locate String)
+expectName message = do
+	next <- peekMaybe
+	case next of
+		Just (Locate at (TWord name)) -> do
+			advance 1
+			return $ Locate at name
+		_ -> crash message
