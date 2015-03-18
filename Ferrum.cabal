@@ -22,6 +22,7 @@ executable Ferrum
     Parse,
       Parse.Core,
       Parse.Expression,
+      Parse.Statement,
     Lex
   -- other-extensions:    
   build-depends:       data-fix >= 0.0.1, base >=4.7 && <4.8
