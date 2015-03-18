@@ -114,7 +114,7 @@ expectMaybe token = do
 		Just (Locate at t) -> if t == token then advance 1 >> return (Just at) else return Nothing
 		_ -> return Nothing
 
-expectName :: Message -> Parse (Locate String)
+expectName :: Message -> Parse Name
 expectName message = do
 	next <- peekMaybe
 	case next of

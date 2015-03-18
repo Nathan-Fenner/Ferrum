@@ -8,7 +8,7 @@ import Lex
 import Location
 
 data StatementForm
-	= Declare Type (Locate String) (Maybe Expression)
+	= Declare Type Name (Maybe Expression)
 	| Assign Expression Expression
 	| Perform Expression
 	| If Expression [Statement] [Statement]

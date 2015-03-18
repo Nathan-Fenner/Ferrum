@@ -11,11 +11,11 @@ data ExpressionValue
 	= Name String
 	| LiteralInt Int
 	| LiteralString String
-	| Operator Expression (Locate String) Expression
-	| Prefix (Locate String) Expression
+	| Operator Expression Name Expression
+	| Prefix Name Expression
 	| Call Expression [Expression]
 	| Index Expression Expression
-	| Dot Expression (Locate String)
+	| Dot Expression Name
 	deriving Show
 
 parseExpression :: Parse Expression
@@ -41,7 +41,7 @@ parseAtom = do
 	where
 		message = Message "expected literal"
 
-data Suffix = SuffixCall [Expression] | SuffixIndex Expression | SuffixDot (Locate String) deriving Show
+data Suffix = SuffixCall [Expression] | SuffixIndex Expression | SuffixDot Name deriving Show
 
 parseSuffix :: Parse (Maybe (Locate Suffix))
 parseSuffix = do
@@ -108,7 +108,7 @@ applySuffixes :: Expression -> [Locate Suffix] -> Expression
 applySuffixes e [] = e
 applySuffixes e (s : ss) = applySuffixes (e `applySuffix` s) ss
 
-data OpTree = OpAtom Expression | OpBranch OpTree (Locate String) OpTree
+data OpTree = OpAtom Expression | OpBranch OpTree Name OpTree
 
 parsePrefix :: [String] -> Parse Expression -> Parse Expression
 parsePrefix ops atom = do
