@@ -30,12 +30,8 @@ parseType = do
 								_ -> return False
 						)
 						parseType
-
-					close <- peekMaybe
-					case close of
-						Just (Locate _closeAt (TSpecial "]")) -> do
-							advance 1 -- skip it
-							return $ Locate nameAt $ TypeField name (first : rest)
-						_ -> crash $ Message $ "expected `]` to close `[` at " ++ displayLocation openAt
+					expect (TSpecial "]") (Message $ "expected `]` to close `[` at " ++ displayLocation openAt)
+					return $ Locate nameAt $ TypeField name (first : rest)
+					
 				_ -> return $ Locate nameAt $ TypeField name [] -- no args
 		_ -> crash $ Message "Expected type name"
