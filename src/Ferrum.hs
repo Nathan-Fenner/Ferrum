@@ -2,6 +2,7 @@
 import Parse.Core
 import Parse.Expression
 import Parse.Statement
+import Parse.Type
 import Location
 import Lex
 

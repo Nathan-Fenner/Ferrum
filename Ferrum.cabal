@@ -22,6 +22,7 @@ executable Ferrum
     Parse,
       Parse.Core,
       Parse.Expression,
+      Parse.Type,
       Parse.Statement,
     Lex
   -- other-extensions:    
