@@ -58,3 +58,16 @@ parseEffect = do
 		Just (TSpecial "retains") -> parseEffectRetain
 		Just (TSpecial "effects") -> parseEffectEffect
 		_ -> crash $ Message $ "effect expected"
+
+parseEffectsUntil :: Parse Bool -> Parse [Effect]
+parseEffectsUntil ender = do
+	r <- ender
+	case r of
+		True -> return []
+		False -> do
+			first <- parseEffect
+			rest <- manyUntil ender (do
+				expect (TSpecial ",") $ Message $ "expected `,` to follow effect"
+				parseEffect
+				)
+			return $ first : rest
