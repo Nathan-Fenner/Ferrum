@@ -73,3 +73,10 @@ parseIf = do
 
 parseStatement :: Parse Statement
 parseStatement = undefined
+
+parseBody :: Message -> Parse [Statement]
+parseBody message = do
+	openAt <- expect (TSpecial "{") message
+	body <- manyUntil (checkNext $ TSpecial "}") parseStatement
+	expect (TSpecial "}") $ Message $ "expected `}` to close `{` at " ++ displayLocation openAt
+	return body
