@@ -69,6 +69,15 @@ parseIf = do
 	body <- parseBody $ Message $ "expected `{` to open after if statement beginning at " ++ displayLocation ifAt
 	return $ Locate ifAt $ If condition body []
 
+parseWhile :: Parse Statement
+parseWhile = do
+	whileAt <- expect (TSpecial "while") $ Message $ "expected keyword `while` to begin while-loop"
+	expect (TSpecial "(") $ Message $ "expected `(` to follow `while` keyword"
+	condition <- parseExpression
+	expect (TSpecial ")") $ Message $ "expected `)` to follow condition in while statement, beginning at " ++ displayLocation whileAt
+	body <- parseBody $ Message $ "expected `{` to open after while statement beginning at " ++ displayLocation whileAt
+	return $ Locate whileAt $ While condition body
+
 parseStatement :: Parse Statement
 parseStatement = undefined
 
