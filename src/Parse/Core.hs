@@ -107,6 +107,13 @@ expect token message = do
 		Just x -> return x
 		Nothing -> crash message
 
+checkNext :: Token -> Parse Bool
+checkNext token = do
+	x <- peekMaybe
+	case x of
+		Just (Locate _ t) -> return $ t == token
+		_ -> return False
+
 expectMaybe :: Token -> Parse (Maybe Location)
 expectMaybe token = do
 	next <- peekMaybe

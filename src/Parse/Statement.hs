@@ -59,3 +59,17 @@ parseAssignOrPerform = do
 			Locate rightAt right <- parseExpression
 			expect (TSpecial ";") $ Message $ "Expected `;` to follow assignment at " ++ displayLocation eqAt
 			return $ Locate exprAt $ Assign (Locate exprAt expr) (Locate rightAt right)
+
+parseIf :: Parse Statement
+parseIf = do
+	ifAt <- expect (TSpecial "if") $ Message $ "expected keyword `if` to begin if-statement"
+	expect (TSpecial "(") $ Message $ "expected `(` to follow `if` keyword"
+	condition <- parseExpression
+	expect (TSpecial ")") $ Message $ "expected `)` to follow condition in if statement, beginning at " ++ displayLocation ifAt
+	openAt <- expect (TSpecial "{") $ Message $ "expected `{` to open after if statement beginning at " ++ displayLocation ifAt
+	body <- manyUntil (checkNext $ TSpecial "}") parseStatement
+	expect (TSpecial "}") $ Message $ "expected `}` to close after `{` that opened at " ++ displayLocation openAt
+	return $ Locate ifAt $ If condition body []
+
+parseStatement :: Parse Statement
+parseStatement = undefined
