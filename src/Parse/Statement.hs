@@ -66,9 +66,7 @@ parseIf = do
 	expect (TSpecial "(") $ Message $ "expected `(` to follow `if` keyword"
 	condition <- parseExpression
 	expect (TSpecial ")") $ Message $ "expected `)` to follow condition in if statement, beginning at " ++ displayLocation ifAt
-	openAt <- expect (TSpecial "{") $ Message $ "expected `{` to open after if statement beginning at " ++ displayLocation ifAt
-	body <- manyUntil (checkNext $ TSpecial "}") parseStatement
-	expect (TSpecial "}") $ Message $ "expected `}` to close after `{` that opened at " ++ displayLocation openAt
+	body <- parseBody $ Message $ "expected `{` to open after if statement beginning at " ++ displayLocation ifAt
 	return $ Locate ifAt $ If condition body []
 
 parseStatement :: Parse Statement
