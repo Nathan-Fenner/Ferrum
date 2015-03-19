@@ -37,7 +37,7 @@ lexer file source = go (1,1) source where
 			[] -> error $ "not a valid operator at " ++ show pos
 			(op :_) -> Locate (Location (file, line, col)) (TOperator op) : go (line, col+length op) (drop (length op) cs)
 		where
-		ops = ["==",">=","<=",">","<","~=","%","++","+","*","-","/","and","or","not"]
+		ops = ["==",">=","<=",">","<","~=","%","++","+","*","-","/","and","or","not", "="]
 	goString start pos sofar [] = error "parsing string literal but reached end of file"
 	goString start (line, col) sofar ('\\':c:ct)
 		|c == 'n' = next "\n"

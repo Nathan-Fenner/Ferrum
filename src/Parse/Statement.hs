@@ -26,7 +26,19 @@ parseDeclare = do
 	Locate typeAt varType <- parseType
 	expect (TSpecial ":") (Message $ "expected `:` to follow variable declaration type starting at " ++ displayLocation typeAt)
 	Locate nameAt name <- expectName $ Message $ "expected name to follow `:` in type declaration beginning at " ++ displayLocation varAt
-	expect (TSpecial ";") $ Message $ "expected semicolon to follow declaration of variable `" ++ name ++ "` at " ++ displayLocation nameAt ++ " (declaration begins at " ++ displayLocation varAt ++ ")"
-	return $ Locate varAt $ Declare (Locate typeAt varType) (Locate nameAt name) Nothing
+	-- here, we may see an `=` instead of a `;`
+	next <- peekMaybe
+	case next of
+		Just (Locate _ (TOperator "=")) -> do
+			advance 1 -- skip the `=`
+			-- now get an expression
+			expr <- parseExpression
+			expect (TSpecial ";") $ Message $ "expected an `;` to follow declaration assignment of `" ++ name ++ "` at " ++ displayLocation nameAt
+			return $ Locate varAt $ Declare (Locate typeAt varType) (Locate nameAt name) (Just expr) 
+		Just (Locate _ (TSpecial ";")) -> do
+			advance 1 -- skip the `;`
+			return $ Locate varAt $ Declare (Locate typeAt varType) (Locate nameAt name) Nothing
+		_ -> crash $ Message $ "expected an `=` or a `;` to follow variable declaration of `" ++ name ++ "` beginning at " ++ displayLocation varAt
+
 
 
