@@ -29,3 +29,4 @@ executable Ferrum
   build-depends:       data-fix >= 0.0.1, base >=4.7 && <4.8
   hs-source-dirs:      src
   default-language:    Haskell2010
+  GHC-Options:    -Wall

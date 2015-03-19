@@ -29,7 +29,7 @@ lexer file source = go (1,1) source where
 		|ch == ' ' = go (line,col+1) ct
 		|ch == '\n' = go (line+1, 1) ct
 		|ch == '\r' = go (line, 1) ct
-		|ch == '\t' = go (line, div (col-1) tabSize * tabSize + 1) ct
+		|ch == '\t' = go (line, (div (col-1) tabSize + 1) * tabSize + 1) ct
 		|ch == '"' = goString pos (line, col+1) "" ct
 		-- otherwise, operator
 		-- take the first operator that starts the string
