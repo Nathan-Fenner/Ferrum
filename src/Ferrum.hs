@@ -10,4 +10,4 @@ import Lex
 
 main = do
 	source <- readFile "test.txt"
-	print $ map value $ lexer "test.txt" source
+	print $ run (parseBody (Message "must begin with `{`")) $ lexer "test.txt" source
