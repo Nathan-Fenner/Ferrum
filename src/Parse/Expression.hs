@@ -120,6 +120,7 @@ parsePrefix ops atom = do
 				return $ Locate at $ Prefix (Locate at op) value
 			else
 				atom
+		_ -> atom
 
 parseInfix' :: [String] -> Parse Expression -> Parse OpTree
 parseInfix' ops atom = do
