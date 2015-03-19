@@ -4,11 +4,12 @@ module Parse.Statement where
 import Parse.Core
 import Parse.Expression
 import Parse.Type
+import Parse.Modifier
 import Lex
 import Location
 
 data StatementForm
-	= Declare Type Name (Maybe Expression)
+	= Declare Modifier Type Name (Maybe Expression)
 	| Assign Expression Expression
 	| Perform Expression
 	| If Expression [Statement] [Statement]
@@ -23,6 +24,7 @@ parseDeclare :: Parse Statement
 parseDeclare = do
 	varAt <- expect (TSpecial "var") (Message $ "expected `var` to begin variable declaration")
 	-- next there's a type
+	modifier <- parseModifier
 	Locate typeAt varType <- parseType
 	expect (TSpecial ":") (Message $ "expected `:` to follow variable declaration type starting at " ++ displayLocation typeAt)
 	Locate nameAt name <- expectName $ Message $ "expected name to follow `:` in type declaration beginning at " ++ displayLocation varAt
@@ -34,10 +36,10 @@ parseDeclare = do
 			-- now get an expression
 			expr <- parseExpression
 			expect (TSpecial ";") $ Message $ "expected an `;` to follow declaration assignment of `" ++ name ++ "` at " ++ displayLocation nameAt
-			return $ Locate varAt $ Declare (Locate typeAt varType) (Locate nameAt name) (Just expr) 
+			return $ Locate varAt $ Declare modifier (Locate typeAt varType) (Locate nameAt name) (Just expr) 
 		Just (Locate _ (TSpecial ";")) -> do
 			advance 1 -- skip the `;`
-			return $ Locate varAt $ Declare (Locate typeAt varType) (Locate nameAt name) Nothing
+			return $ Locate varAt $ Declare modifier (Locate typeAt varType) (Locate nameAt name) Nothing
 		_ -> crash $ Message $ "expected an `=` or a `;` to follow variable declaration of `" ++ name ++ "` beginning at " ++ displayLocation varAt
 
 
