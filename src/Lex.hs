@@ -17,7 +17,7 @@ specialWords = ["var","if","while"]
 
 lexer :: FilePath -> String -> [Locate Token]
 lexer file source = go (1,1) source where
-	go pos [] = []
+	go _pos [] = []
 	go pos@(line,col) cs@(ch : ct)
 		|isLetter ch = con
 			pos
