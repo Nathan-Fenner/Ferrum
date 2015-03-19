@@ -104,7 +104,16 @@ parseReturn = do
 		return $ Locate returnAt $ Return $ Just expr
 
 parseStatement :: Parse Statement
-parseStatement = undefined
+parseStatement = do
+	nextToken <- peekMaybe
+	case nextToken of
+		Nothing -> crash $ Message $ "expected statement"
+		Just (Locate _ (TSpecial "var")) -> parseDeclare
+		Just (Locate _ (TSpecial "if")) -> parseIf
+		Just (Locate _ (TSpecial "while")) -> parseWhile
+		Just (Locate _ (TSpecial "break")) -> parseBreak
+		Just (Locate _ (TSpecial "return")) -> parseReturn
+		_ -> parseAssignOrPerform
 
 parseBody :: Message -> Parse [Statement]
 parseBody message = do
@@ -112,3 +121,4 @@ parseBody message = do
 	body <- manyUntil (checkNext $ TSpecial "}") parseStatement
 	expect (TSpecial "}") $ Message $ "expected `}` to close `{` at " ++ displayLocation openAt
 	return body
+
