@@ -85,6 +85,11 @@ parseWhile = do
 	body <- parseBody $ Message $ "expected `{` to open after while statement beginning at " ++ displayLocation whileAt
 	return $ Locate whileAt $ While condition body
 
+parseBreak :: Parse Statement
+parseBreak = do
+	expect (TSpecial "break") $ Message $ "expected keyword `break` to begin break-statement"
+	expect (TSpecial ";") $ Message $ "expected `;` to follow `break` keyword"
+
 parseStatement :: Parse Statement
 parseStatement = undefined
 
