@@ -42,3 +42,20 @@ parseDeclare = do
 
 
 
+parseAssignOrPerform :: Parse Statement
+parseAssignOrPerform = do
+	Locate exprAt expr <- parseExpression -- the left
+	-- case on the next symbol:
+	-- `;` means Perform
+	-- `=` means Assign
+	-- anything else is an error
+	next <- peekMaybe
+	case next of
+		Just (Locate _ (TSpecial ";")) -> do
+			advance 1 -- skip the `;`
+			return $ Locate exprAt (Perform (Locate exprAt expr))
+		Just (Locate eqAt (TOperator "=")) -> do
+			advance 1 -- skip the `=`
+			Locate rightAt right <- parseExpression
+			expect (TSpecial ";") $ Message $ "Expected `;` to follow assignment at " ++ displayLocation eqAt
+			return $ Locate exprAt $ Assign (Locate exprAt expr) (Locate rightAt right)
