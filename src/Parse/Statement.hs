@@ -87,8 +87,15 @@ parseWhile = do
 
 parseBreak :: Parse Statement
 parseBreak = do
-	expect (TSpecial "break") $ Message $ "expected keyword `break` to begin break-statement"
+	breakAt <- expect (TSpecial "break") $ Message $ "expected keyword `break` to begin break-statement"
 	expect (TSpecial ";") $ Message $ "expected `;` to follow `break` keyword"
+	return $ Locate breakAt Break
+
+parseReturn :: Parse Statement
+parseReturn = do
+	returnAt <- expect (TSpecial "return") $ Message $ "expected keyword `return` to being return-statement"
+	expect (TSpecial ";") $ Message $ "expected `;` to follow `return`"
+	return $ Locate returnAt $ Return Nothing
 
 parseStatement :: Parse Statement
 parseStatement = undefined
