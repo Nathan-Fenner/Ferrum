@@ -14,7 +14,7 @@ data StatementForm
 	| If Expression [Statement] [Statement]
 	| While Expression [Statement]
 	| Break
-	| Return (Maybe Statement)
+	| Return (Maybe Expression)
 	deriving Show
 
 type Statement = Locate StatementForm
@@ -94,8 +94,14 @@ parseBreak = do
 parseReturn :: Parse Statement
 parseReturn = do
 	returnAt <- expect (TSpecial "return") $ Message $ "expected keyword `return` to being return-statement"
-	expect (TSpecial ";") $ Message $ "expected `;` to follow `return`"
-	return $ Locate returnAt $ Return Nothing
+	emptyBreak <- checkNext (TSpecial ";")
+	if emptyBreak then do
+		expect (TSpecial ";") $ Message $ "expected `;` to follow `return`"
+		return $ Locate returnAt $ Return Nothing
+	else do
+		expr <- parseExpression
+		expect (TSpecial ";") $ Message $ "expected `;` to follow expression for return at " ++ displayLocation returnAt
+		return $ Locate returnAt $ Return $ Just expr
 
 parseStatement :: Parse Statement
 parseStatement = undefined
