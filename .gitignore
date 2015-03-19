@@ -45,3 +45,4 @@ Temporary Items
 *.o
 *.exe
 dist/setup-config
+dist/setup-config
