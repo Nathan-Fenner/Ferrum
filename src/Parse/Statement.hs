@@ -67,7 +67,14 @@ parseIf = do
 	condition <- parseExpression
 	expect (TSpecial ")") $ Message $ "expected `)` to follow condition in if statement, beginning at " ++ displayLocation ifAt
 	body <- parseBody $ Message $ "expected `{` to open after if statement beginning at " ++ displayLocation ifAt
-	return $ Locate ifAt $ If condition body []
+	hasElse <- checkNext (TSpecial "else")
+	if hasElse then do
+			advance 1 -- skip the 'else'
+			elseBody <- parseBody $ Message $ "expected `{` to open after else-statement to if-statement beginning at " ++ displayLocation ifAt
+			return $ Locate ifAt $ If condition body elseBody
+		else
+			return $ Locate ifAt $ If condition body []
+	
 
 parseWhile :: Parse Statement
 parseWhile = do
