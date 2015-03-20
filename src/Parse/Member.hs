@@ -26,6 +26,7 @@ parseVisibility = do
 		_ -> crash $ Message $ "expected `public` or `private` or `protected` to indicate member visibility"
 
 data Member = Member Visibility MemberValue
+	deriving Show
 
 parseMember :: Parse Member
 parseMember = do
