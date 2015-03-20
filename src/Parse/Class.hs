@@ -10,13 +10,41 @@ import Parse.Modifier
 import Location
 import Lex
 
-data Member
+data Visibility
+	= Public
+	| Private
+	| Protected
+	deriving Show
+
+parseVisibility :: Parse Visibility
+parseVisibility = do
+	next <- peekMaybe
+	case next of
+		Just (Locate _ (TSpecial "public")) -> return Public
+		Just (Locate _ (TSpecial "private")) -> return Private
+		Just (Locate _ (TSpecial "protected")) -> return Protected
+		_ -> crash $ Message $ "expected `public` or `private` or `protected` to indicate member visibility"
+
+data Member = Member Visibility MemberValue
+
+parseMember :: Parse Member
+parseMember = do
+	visibility <- parseVisibility
+	next <- peekMaybe
+	memberValue <- case next of
+		Just (Locate _ (TSpecial "field")) -> parseField
+		Just (Locate _ (TSpecial "method")) -> parseMethod
+		Just (Locate _ (TSpecial "constructor")) -> parseConstructor
+		_ -> crash $ Message $ "expected `field` or `method` or `constructor` to follow visibility to indicate member form"
+	return $ Member visibility memberValue
+
+data MemberValue
 	= Field Modifier Type Name
 	| Method Type (Maybe Expression) Name [(Type, Name)] [Effect] [Statement]
 	| Constructor [Type] [(Type, Name)] [Effect] [Statement]
 	deriving Show
 
-parseField :: Parse Member
+parseField :: Parse MemberValue
 parseField = do
 	fieldAt <- expect (TSpecial "field") $ Message $ "expected keyword `field` to begin field"
 	modifier <- parseModifier
@@ -60,7 +88,7 @@ parseArguments = do
 				)
 			return $ first : rest
 
-parseMethod :: Parse Member
+parseMethod :: Parse MemberValue
 parseMethod = do
 	methodAt <- expect (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
 	returnType <- parseType
@@ -87,7 +115,7 @@ parseGenerics = do
 			return $ first : rest
 		_ -> return []
 
-parseConstructor :: Parse Member
+parseConstructor :: Parse MemberValue
 parseConstructor = do
 	constructorAt <- expect (TSpecial "constructor") $ Message $ "expected keyword `constructor` to begin constructor"
 	generics <- parseGenerics
