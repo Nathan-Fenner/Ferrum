@@ -47,7 +47,7 @@ data MemberValue
 
 parseField :: Parse MemberValue
 parseField = do
-	fieldAt <- expect (TSpecial "field") $ Message $ "expected keyword `field` to begin field"
+	fieldAt <- expectAt (TSpecial "field") $ Message $ "expected keyword `field` to begin field"
 	modifier <- parseModifier
 	fieldType <- parseType
 	expect (TSpecial ":") $ Message $ "expected `:` to follow type in field starting at " ++ displayLocation fieldAt
@@ -73,7 +73,7 @@ parseArgument = do
 
 parseArguments :: Parse [(Type, Name)]
 parseArguments = do
-	openAt <- expect (TSpecial "(") $ Message $ "expected `(` to begin argument list"
+	openAt <- expectAt (TSpecial "(") $ Message $ "expected `(` to begin argument list"
 	next <- peekMaybe
 	case next of
 		Just (Locate _closeAt  (TSpecial ")")) -> do
@@ -92,7 +92,7 @@ parseArguments = do
 
 parseMethod :: Parse MemberValue
 parseMethod = do
-	methodAt <- expect (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
+	methodAt <- expectAt (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
 	returnType <- parseType
 	from <- parseFrom
 	expect (TSpecial ":") $ Message $ "expected `:` to follow return type"
@@ -120,7 +120,7 @@ parseGenerics = do
 
 parseConstructor :: Parse MemberValue
 parseConstructor = do
-	constructorAt <- expect (TSpecial "constructor") $ Message $ "expected keyword `constructor` to begin constructor"
+	constructorAt <- expectAt (TSpecial "constructor") $ Message $ "expected keyword `constructor` to begin constructor"
 	arguments <- parseArguments
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
 	body <- parseBody $ Message $ "expected function body for constructor at " ++ displayLocation constructorAt

@@ -22,7 +22,7 @@ type Statement = Locate StatementForm
 
 parseDeclare :: Parse Statement
 parseDeclare = do
-	varAt <- expect (TSpecial "var") (Message $ "expected `var` to begin variable declaration")
+	varAt <- expectAt (TSpecial "var") (Message $ "expected `var` to begin variable declaration")
 	-- next there's a type
 	modifier <- parseModifier
 	Locate typeAt varType <- parseType
@@ -65,7 +65,7 @@ parseAssignOrPerform = do
 
 parseIf :: Parse Statement
 parseIf = do
-	ifAt <- expect (TSpecial "if") $ Message $ "expected keyword `if` to begin if-statement"
+	ifAt <- expectAt (TSpecial "if") $ Message $ "expected keyword `if` to begin if-statement"
 	expect (TSpecial "(") $ Message $ "expected `(` to follow `if` keyword"
 	condition <- parseExpression
 	expect (TSpecial ")") $ Message $ "expected `)` to follow condition in if statement, beginning at " ++ displayLocation ifAt
@@ -81,7 +81,7 @@ parseIf = do
 
 parseWhile :: Parse Statement
 parseWhile = do
-	whileAt <- expect (TSpecial "while") $ Message $ "expected keyword `while` to begin while-loop"
+	whileAt <- expectAt (TSpecial "while") $ Message $ "expected keyword `while` to begin while-loop"
 	expect (TSpecial "(") $ Message $ "expected `(` to follow `while` keyword"
 	condition <- parseExpression
 	expect (TSpecial ")") $ Message $ "expected `)` to follow condition in while statement, beginning at " ++ displayLocation whileAt
@@ -90,13 +90,13 @@ parseWhile = do
 
 parseBreak :: Parse Statement
 parseBreak = do
-	breakAt <- expect (TSpecial "break") $ Message $ "expected keyword `break` to begin break-statement"
+	breakAt <- expectAt (TSpecial "break") $ Message $ "expected keyword `break` to begin break-statement"
 	expect (TSpecial ";") $ Message $ "expected `;` to follow `break` keyword"
 	return $ Locate breakAt Break
 
 parseReturn :: Parse Statement
 parseReturn = do
-	returnAt <- expect (TSpecial "return") $ Message $ "expected keyword `return` to being return-statement"
+	returnAt <- expectAt (TSpecial "return") $ Message $ "expected keyword `return` to being return-statement"
 	emptyBreak <- checkNext (TSpecial ";")
 	if emptyBreak then do
 		expect (TSpecial ";") $ Message $ "expected `;` to follow `return`"
@@ -120,7 +120,7 @@ parseStatement = do
 
 parseBody :: Message -> Parse [Statement]
 parseBody message = do
-	openAt <- expect (TSpecial "{") message
+	openAt <- expectAt (TSpecial "{") message
 	body <- manyUntil (checkNext $ TSpecial "}") parseStatement
 	expect (TSpecial "}") $ Message $ "expected `}` to close `{` at " ++ displayLocation openAt
 	return body

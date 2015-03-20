@@ -100,12 +100,15 @@ check fun = do
 		Nothing -> return $ False
 		Just (Locate _at thing) -> return $ fun thing
 
-expect :: Token -> Message -> Parse Location
-expect token message = do
+expectAt :: Token -> Message -> Parse Location
+expectAt token message = do
 	at <- expectMaybe token
 	case at of
 		Just x -> return x
 		Nothing -> crash message
+
+expect :: Token -> Message -> Parse ()
+expect token message = expectAt token message >> return ()
 
 checkNext :: Token -> Parse Bool
 checkNext token = do

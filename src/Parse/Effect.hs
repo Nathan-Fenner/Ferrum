@@ -18,25 +18,25 @@ type Effect = Locate EffectValue
 
 parseEffectDiscard :: Parse Effect
 parseEffectDiscard = do
-	discardAt <- expect (TSpecial "discards") $ Message $ "expected keyword `discards`"
+	discardAt <- expectAt (TSpecial "discards") $ Message $ "expected keyword `discards`"
 	expr <- parseExpression
 	return $ Locate discardAt $ Discard expr
 
 parseEffectModify :: Parse Effect
 parseEffectModify = do
-	modifyAt <- expect (TSpecial "modifies") $ Message $ "expected keyword `modifies`"
+	modifyAt <- expectAt (TSpecial "modifies") $ Message $ "expected keyword `modifies`"
 	expr <- parseExpression
 	return $ Locate modifyAt $ Modify expr
 
 parseEffectAlter :: Parse Effect
 parseEffectAlter = do
-	alterAt <- expect (TSpecial "alters") $ Message $ "expected keyword `alters`"
+	alterAt <- expectAt (TSpecial "alters") $ Message $ "expected keyword `alters`"
 	expr <- parseExpression
 	return $ Locate alterAt $ Alter expr
 
 parseEffectRetain :: Parse Effect
 parseEffectRetain = do
-	retainAt <- expect (TSpecial "retains") $ Message $ "expected keyword `retains`"
+	retainAt <- expectAt (TSpecial "retains") $ Message $ "expected keyword `retains`"
 	expr <- parseExpression
 	expect (TSpecial "in") $ Message $ "expected keyword `in` to follow keyword `retains` at " ++ displayLocation retainAt
 	from <- parseExpression
@@ -44,7 +44,7 @@ parseEffectRetain = do
 
 parseEffectEffect :: Parse Effect
 parseEffectEffect = do
-	effectAt <- expect (TSpecial "effects") $ Message $ "expected keyword `effects`"
+	effectAt <- expectAt (TSpecial "effects") $ Message $ "expected keyword `effects`"
 	expr <- parseExpression
 	return $ Locate effectAt $ Effect expr
 
