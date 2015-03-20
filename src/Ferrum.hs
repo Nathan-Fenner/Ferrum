@@ -1,10 +1,5 @@
 
 import Parse.Core
-import Parse.Expression
-import Parse.Statement
-import Parse.Type
-import Parse.Effect
-import Parse.Class
 import Parse.Module
 import Location
 import Lex
