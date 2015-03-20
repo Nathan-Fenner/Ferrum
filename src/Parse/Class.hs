@@ -72,3 +72,34 @@ parseMethod = do
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
 	body <- parseBody $ Message $ "expected function body for method `" ++ name ++ "` at " ++ displayLocation nameAt
 	return $ Method returnType from (Locate nameAt name) args effects body
+
+data Constructor
+	= Constructor [Type] [(Type, Name)] [Effect] [Statement]
+	deriving Show
+
+parseGenerics :: Parse [Type]
+parseGenerics = do
+	next <- peekMaybe
+	case next of
+		Just (Locate openAt (TSpecial "[")) -> do
+			advance 1 -- skip it
+			first <- parseType
+			rest <- manyUntil (checkNext (TSpecial "]"))
+				(do
+					expect (TSpecial ",") $ Message $ "expected `,` to separate types in generic list starting at " ++ displayLocation openAt
+					parseType
+				)
+			expect (TSpecial "]") $ Message $ "expected `]` to close `[` at " ++ displayLocation openAt
+			return $ first : rest
+		_ -> return []
+
+parseConstructor :: Parse Constructor
+parseConstructor = do
+	constructorAt <- expect (TSpecial "constructor") $ Message $ "expected keyword `constructor` to begin constructor"
+	generics <- parseGenerics
+	arguments <- parseArguments
+	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
+	body <- parseBody $ Message $ "expected function body for constructor at " ++ displayLocation constructorAt
+	return $ Constructor generics arguments effects body
+
+
