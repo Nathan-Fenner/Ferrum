@@ -27,13 +27,8 @@ parseAtomCore = do
 	case token of
 		TSpecial "(" -> do
 			expr <- parseExpression
-			Locate _parenAt closeParen <- ask parenMessage
-			case closeParen of
-				TSpecial ")" -> return expr
-				_ -> crash parenMessage
-			where
-			parenMessage = Message $ "expected `)` to close `(` from " ++ displayLocation atExp
-
+			expect (TSpecial ")") $ Message $ "expected `)` to close `(` from " ++ displayLocation atExp
+			return expr
 		TWord name -> return $ Locate atExp $ Name name
 		TInt int -> return $ Locate atExp $ LiteralInt int
 		TString string -> return $ Locate atExp $ LiteralString string
