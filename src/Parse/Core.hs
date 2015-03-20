@@ -118,8 +118,8 @@ checkEnd :: Parse Bool
 checkEnd = do
 	next <- peekMaybe
 	case next of
-		Nothing -> True
-		_ -> False
+		Nothing -> return True
+		_ -> return False
 
 expectMaybe :: Token -> Parse (Maybe Location)
 expectMaybe token = do
