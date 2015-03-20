@@ -114,6 +114,13 @@ checkNext token = do
 		Just (Locate _ t) -> return $ t == token
 		_ -> return False
 
+checkEnd :: Parse Bool
+checkEnd = do
+	next <- peekMaybe
+	case next of
+		Nothing -> True
+		_ -> False
+
 expectMaybe :: Token -> Parse (Maybe Location)
 expectMaybe token = do
 	next <- peekMaybe
