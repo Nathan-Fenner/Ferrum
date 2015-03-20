@@ -82,12 +82,8 @@ parseSuffix = do
 			TSpecial "[" -> do
 				advance 1 -- skip the `[`
 				index <- parseExpression
-				next <- peekMaybe
-				case next of
-					Just (Locate _at (TSpecial "]")) -> do
-						advance 1
-						return $ Just $ Locate atSuffix $ SuffixIndex index
-					_ -> crash $ Message $ "expected `]` to close opening `[` at " ++ displayLocation atSuffix
+				expect (TSpecial "]") $ Message $ "expected `]` to close opening `[` at " ++ displayLocation atSuffix
+				return $ Just $ Locate atSuffix $ SuffixIndex index
 			TSpecial "." -> do
 				advance 1 -- skip the `.`
 				name <- expectName $ Message "expected name to follow `.`"
