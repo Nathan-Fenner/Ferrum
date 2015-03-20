@@ -1,5 +1,32 @@
-{
-	a = 5;var Q
-	[#T : y = 4 + 17;
+
+module ExampleProgram {
+
+	class Pair[#x, #y] {
+
+		private field mut #x : left;
+		private field mut #y : right;
+
+		public constructor( #x : first, #y : second ) retains first in this, retains second in this {
+			this.left = first;
+			this.right = second;
+		}
+
+		public method #x from this : getLeft( ) {
+			return this.left;
+		}
+		public method #y from this : getRight( ) {
+			return this.right;
+		}
+
+		public method Void : setLeft( #x : newLeft ) modifies this, retains newLeft in this {
+			this.left = newLeft;
+		}
+		public method Void : setRight( #y : newRight ) modifies this, retains newRight in this {
+			this.right = newRight;
+		}
+	}
+
+	
+
+
 }
-   

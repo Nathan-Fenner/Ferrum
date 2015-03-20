@@ -10,7 +10,15 @@ import Location
 import Lex
 
 
-
+main :: IO ()
 main = do
 	source <- readFile "test.txt"
-	print $ run (parseBody (Message "must begin with `{`")) $ lexer "test.txt" source
+	let lexed = lexer "test.txt" source
+	putStrLn $ concat $ map (++ "\n") $ map show lexed
+	report parseModule $ lexer "test.txt" source
+	return ()
+
+report :: Show x => Parse x -> [Locate Token] -> IO ()
+report parser tokens = case run parser tokens of
+	(_, Right result) -> print result
+	(count, Left (Message message)) -> print $ (displayLocation $ at $ head $ drop count tokens) ++ "   " ++ message

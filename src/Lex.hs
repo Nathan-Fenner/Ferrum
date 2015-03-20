@@ -13,7 +13,7 @@ startsWith :: String -> String -> Bool
 x `startsWith` y = take (length y) x == y
 
 specialWords :: [String]
-specialWords = ["var","if","while"]
+specialWords = ["var","if","while","module","class","public","private","field","method","constructor","mut","alt","fin","discards","retains","modifies","alters","from","in"]
 
 lexer :: FilePath -> String -> [Locate Token]
 lexer file source = go (1,1) source where
@@ -24,7 +24,7 @@ lexer file source = go (1,1) source where
 			(\name -> if name `elem` ops then TOperator name else if name `elem` specialWords then TSpecial name else TWord name)
 			isLetter
 			cs
-		|ch `elem` "[](){}.:;" = Locate (Location (file, line, col)) (TSpecial [ch]) : go (line,col+1) ct
+		|ch `elem` "[](){}.,:;" = Locate (Location (file, line, col)) (TSpecial [ch]) : go (line,col+1) ct
 		|isDigit ch = con pos (TInt . read) isDigit cs
 		|ch == ' ' = go (line,col+1) ct
 		|ch == '\n' = go (line+1, 1) ct
