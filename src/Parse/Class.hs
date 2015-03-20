@@ -62,6 +62,7 @@ parseArguments = do
 				)
 			return $ first : rest
 
+parseMethod :: Parse Method
 parseMethod = do
 	methodAt <- expect (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
 	returnType <- parseType
