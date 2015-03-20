@@ -94,6 +94,7 @@ parseMethod = do
 	methodAt <- expect (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
 	returnType <- parseType
 	from <- parseFrom
+	expect (TSpecial ":") $ Message $ "expected `:` to follow return type"
 	Locate nameAt name <- expectName $ Message $ "expected method name to follow return type"
 	args <- parseArguments
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
