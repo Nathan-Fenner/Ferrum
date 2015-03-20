@@ -20,9 +20,9 @@ parseVisibility :: Parse Visibility
 parseVisibility = do
 	next <- peekMaybe
 	case next of
-		Just (Locate _ (TSpecial "public")) -> return Public
-		Just (Locate _ (TSpecial "private")) -> return Private
-		Just (Locate _ (TSpecial "protected")) -> return Protected
+		Just (Locate _ (TSpecial "public")) -> advance 1 >> return Public
+		Just (Locate _ (TSpecial "private")) -> advance 1 >> return Private
+		Just (Locate _ (TSpecial "protected")) -> advance 1 >> return Protected
 		_ -> crash $ Message $ "expected `public` or `private` or `protected` to indicate member visibility"
 
 data Member = Member Visibility MemberValue
@@ -73,7 +73,7 @@ parseArgument = do
 
 parseArguments :: Parse [(Type, Name)]
 parseArguments = do
-	expect (TSpecial "(") $ Message $ "expected `(` to begin argument list"
+	openAt <- expect (TSpecial "(") $ Message $ "expected `(` to begin argument list"
 	next <- peekMaybe
 	case next of
 		Just (Locate _closeAt  (TSpecial ")")) -> do
@@ -87,6 +87,7 @@ parseArguments = do
 					expect (TSpecial ",") $ Message $ "expected `,` to follow argument in argument list"
 					parseArgument
 				)
+			expect (TSpecial ")") $ Message $ "expected `)` to close argument list begun at " ++ displayLocation openAt
 			return $ first : rest
 
 parseMethod :: Parse MemberValue

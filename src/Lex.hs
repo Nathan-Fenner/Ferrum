@@ -13,7 +13,7 @@ startsWith :: String -> String -> Bool
 x `startsWith` y = take (length y) x == y
 
 specialWords :: [String]
-specialWords = ["var","if","while","module","class","public","private","field","method","constructor","mut","alt","fin","discards","retains","modifies","alters","from","in"]
+specialWords = ["var","if","while","module","class","public","private","field","method","constructor","mut","alt","fin","discards","retains","modifies","alters","from","in","return","break"]
 
 lexer :: FilePath -> String -> [Locate Token]
 lexer file source = go (1,1) source where

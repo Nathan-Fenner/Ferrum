@@ -61,6 +61,7 @@ parseAssignOrPerform = do
 			Locate rightAt right <- parseExpression
 			expect (TSpecial ";") $ Message $ "Expected `;` to follow assignment at " ++ displayLocation eqAt
 			return $ Locate exprAt $ Assign (Locate exprAt expr) (Locate rightAt right)
+		_ -> crash $ Message $ "expected `=` or `;` to follow expression for assignment or action perform"
 
 parseIf :: Parse Statement
 parseIf = do

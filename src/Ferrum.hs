@@ -21,4 +21,7 @@ main = do
 report :: Show x => Parse x -> [Locate Token] -> IO ()
 report parser tokens = case run parser tokens of
 	(_, Right result) -> print result
-	(count, Left (Message message)) -> print $ (displayLocation $ at $ head $ drop count tokens) ++ "   " ++ message
+	(count, Left (Message message)) -> do
+		print $ (displayLocation $ at $ head $ drop count tokens) ++ "   " ++ message
+		putStrLn $ concat $ map (++"\n") $ map show $ take 10 $ drop count tokens
+

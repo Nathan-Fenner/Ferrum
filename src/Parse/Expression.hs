@@ -21,8 +21,8 @@ data ExpressionValue
 parseExpression :: Parse Expression
 parseExpression = parseOperator
 
-parseAtom :: Parse Expression
-parseAtom = do
+parseAtomCore :: Parse Expression
+parseAtomCore = do
 	Locate at token <- ask message
 	case token of
 		TSpecial "(" -> do
@@ -40,6 +40,12 @@ parseAtom = do
 		_ -> crash message
 	where
 		message = Message "expected literal"
+
+parseAtom :: Parse Expression
+parseAtom = do
+	core <- parseAtomCore
+	suffixes <- parseSuffixes
+	return $ applySuffixes core suffixes
 
 data Suffix = SuffixCall [Expression] | SuffixIndex Expression | SuffixDot Name deriving Show
 
@@ -90,12 +96,9 @@ parseSuffix = do
 			TSpecial "." -> do
 				advance 1 -- skip the `.`
 				next <- peekMaybe
-				case next of
-					Just (Locate nameAt (TWord name)) -> do
-						advance 1
-						return $ Just $ Locate at $ SuffixDot $ Locate nameAt name
-					_ -> crash $ Message $ "expected name to follow `.`"
-
+				name <- expectName $ Message "expected name to follow `.`"
+				return $ Just $ Locate at $ SuffixDot name
+			_ -> return Nothing
 parseSuffixes :: Parse [Locate Suffix]
 parseSuffixes = manyMaybe parseSuffix
 
