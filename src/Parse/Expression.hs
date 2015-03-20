@@ -62,12 +62,7 @@ parseSuffix = do
 					_ -> do
 						-- there's at least one expression inside
 						first <- parseExpression
-						rest <- manyWhile (do
-								x <- peekMaybe
-								case x of
-									Just (Locate _ (TSpecial ",")) -> return True
-									_ -> return False
-							)
+						rest <- manyWhile (checkNext (TSpecial ","))
 							(do
 								advance 1 -- skip the `,`
 								parseExpression
