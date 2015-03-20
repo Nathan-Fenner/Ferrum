@@ -42,7 +42,7 @@ parseMember = do
 data MemberValue
 	= Field Modifier Type Name
 	| Method Type (Maybe Expression) Name [(Type, Name)] [Effect] [Statement]
-	| Constructor [Type] [(Type, Name)] [Effect] [Statement]
+	| Constructor [(Type, Name)] [Effect] [Statement]
 	deriving Show
 
 parseField :: Parse MemberValue
@@ -119,9 +119,8 @@ parseGenerics = do
 parseConstructor :: Parse MemberValue
 parseConstructor = do
 	constructorAt <- expect (TSpecial "constructor") $ Message $ "expected keyword `constructor` to begin constructor"
-	generics <- parseGenerics
 	arguments <- parseArguments
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
 	body <- parseBody $ Message $ "expected function body for constructor at " ++ displayLocation constructorAt
-	return $ Constructor generics arguments effects body
+	return $ Constructor arguments effects body
 
