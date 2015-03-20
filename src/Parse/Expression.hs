@@ -23,20 +23,20 @@ parseExpression = parseOperator
 
 parseAtomCore :: Parse Expression
 parseAtomCore = do
-	Locate at token <- ask message
+	Locate atExp token <- ask message
 	case token of
 		TSpecial "(" -> do
 			expr <- parseExpression
-			Locate parenAt closeParen <- ask parenMessage
+			Locate _parenAt closeParen <- ask parenMessage
 			case closeParen of
 				TSpecial ")" -> return expr
 				_ -> crash parenMessage
 			where
-			parenMessage = Message $ "expected `)` to close `(` from " ++ displayLocation at
+			parenMessage = Message $ "expected `)` to close `(` from " ++ displayLocation atExp
 
-		TWord name -> return $ Locate at $ Name name
-		TInt int -> return $ Locate at $ LiteralInt int
-		TString string -> return $ Locate at $ LiteralString string
+		TWord name -> return $ Locate atExp $ Name name
+		TInt int -> return $ Locate atExp $ LiteralInt int
+		TString string -> return $ Locate atExp $ LiteralString string
 		_ -> crash message
 	where
 		message = Message "expected literal"
@@ -54,16 +54,16 @@ parseSuffix = do
 	whole <- peekMaybe
 	case whole of
 		Nothing -> return Nothing
-		Just (Locate at token) -> case token of
+		Just (Locate atSuffix token) -> case token of
 			TSpecial "(" -> do -- it's a function call
 				advance 1 -- to skip the `(`
 				next <- peekMaybe
 				case next of
-					Nothing -> crash $ Message $ "expected `)` to close `(` that opened function call at " ++ displayLocation at
+					Nothing -> crash $ Message $ "expected `)` to close `(` that opened function call at " ++ displayLocation atSuffix
 					Just (Locate _at' (TSpecial ")")) -> do
 						advance 1
-						return $ Just $ Locate at $ SuffixCall []
-					Just (Locate _at' (TSpecial ",")) -> crash $ Message $ "expected `)` to close open `(` or expression before `,` at " ++ displayLocation at
+						return $ Just $ Locate atSuffix $ SuffixCall []
+					Just (Locate _at' (TSpecial ",")) -> crash $ Message $ "expected `)` to close open `(` or expression before `,` at " ++ displayLocation atSuffix
 					_ -> do
 						-- there's at least one expression inside
 						first <- parseExpression
@@ -81,9 +81,9 @@ parseSuffix = do
 						closing <- peekMaybe
 						case closing of
 							Just (Locate _at (TSpecial ")")) -> return ()
-							_ -> crash $ Message $ "expected `)` to close opening `(` at " ++ displayLocation at
+							_ -> crash $ Message $ "expected `)` to close opening `(` at " ++ displayLocation atSuffix
 						advance 1 -- skip the `)`
-						return $ Just $ Locate at $ SuffixCall $ first : rest
+						return $ Just $ Locate atSuffix $ SuffixCall $ first : rest
 			TSpecial "[" -> do
 				advance 1 -- skip the `[`
 				index <- parseExpression
@@ -91,21 +91,20 @@ parseSuffix = do
 				case next of
 					Just (Locate _at (TSpecial "]")) -> do
 						advance 1
-						return $ Just $ Locate at $ SuffixIndex index
-					_ -> crash $ Message $ "expected `]` to close opening `[` at " ++ displayLocation at
+						return $ Just $ Locate atSuffix $ SuffixIndex index
+					_ -> crash $ Message $ "expected `]` to close opening `[` at " ++ displayLocation atSuffix
 			TSpecial "." -> do
 				advance 1 -- skip the `.`
-				next <- peekMaybe
 				name <- expectName $ Message "expected name to follow `.`"
-				return $ Just $ Locate at $ SuffixDot name
+				return $ Just $ Locate atSuffix $ SuffixDot name
 			_ -> return Nothing
 parseSuffixes :: Parse [Locate Suffix]
 parseSuffixes = manyMaybe parseSuffix
 
 applySuffix :: Expression -> Locate Suffix -> Expression
-applySuffix fun@(Locate funAt _) (Locate at (SuffixCall call)) = Locate funAt $ Call fun call
-applySuffix arg@(Locate argAt _) (Locate at (SuffixIndex index)) = Locate argAt $ Index arg index
-applySuffix expr@(Locate exprAt _) (Locate at (SuffixDot name)) = Locate exprAt $ Dot expr name
+applySuffix fun@(Locate funAt _) (Locate _at (SuffixCall call)) = Locate funAt $ Call fun call
+applySuffix arg@(Locate argAt _) (Locate _at (SuffixIndex index)) = Locate argAt $ Index arg index
+applySuffix expr@(Locate exprAt _) (Locate _at (SuffixDot name)) = Locate exprAt $ Dot expr name
 
 applySuffixes :: Expression -> [Locate Suffix] -> Expression
 applySuffixes e [] = e
@@ -117,10 +116,10 @@ parsePrefix :: [String] -> Parse Expression -> Parse Expression
 parsePrefix ops atom = do
 	next <- peekMaybe
 	case next of
-		Just (Locate at (TOperator op)) -> if op `elem` ops then do
+		Just (Locate atPrefix (TOperator op)) -> if op `elem` ops then do
 				advance 1 -- advance past this operator
-				value <- parsePrefix ops atom
-				return $ Locate at $ Prefix (Locate at op) value
+				expr <- parsePrefix ops atom
+				return $ Locate atPrefix $ Prefix (Locate atPrefix op) expr
 			else
 				atom
 		_ -> atom
@@ -130,10 +129,10 @@ parseInfix' ops atom = do
 	left <- atom
 	next <- peekMaybe
 	case next of
-		Just (Locate at (TOperator op)) -> if op `elem` ops then do
+		Just (Locate atInfix (TOperator op)) -> if op `elem` ops then do
 			advance 1 -- need to advance since we only 'peeked' next
 			right <- parseInfix' ops atom -- the right side
-			return $ OpBranch (OpAtom left) (Locate at op) right
+			return $ OpBranch (OpAtom left) (Locate atInfix op) right
 			else
 				return $ OpAtom left
 		_ -> return $ OpAtom left
@@ -145,7 +144,7 @@ parseInfixRight :: [String] -> Parse Expression -> Parse Expression
 parseInfixRight ops atom = fmap flattenRight $ parseInfix' ops atom
 
 locateTree :: OpTree -> Location
-locateTree (OpAtom (Locate at _)) = at
+locateTree (OpAtom (Locate atTree _)) = atTree
 locateTree (OpBranch left _ _) = locateTree left
 
 flattenLeft :: OpTree -> Expression

@@ -59,7 +59,7 @@ parseFrom :: Parse (Maybe Expression)
 parseFrom = do
 	next <- peekMaybe
 	case next of
-		Just (Locate fromAt (TSpecial "from")) -> do
+		Just (Locate _fromAt (TSpecial "from")) -> do
 			advance 1 -- skip the from
 			fmap Just parseExpression
 		_ -> return Nothing
@@ -92,7 +92,7 @@ parseArguments = do
 
 parseMethod :: Parse MemberValue
 parseMethod = do
-	methodAt <- expectAt (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
+	expect (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
 	returnType <- parseType
 	from <- parseFrom
 	expect (TSpecial ":") $ Message $ "expected `:` to follow return type"

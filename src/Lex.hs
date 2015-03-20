@@ -38,7 +38,7 @@ lexer file source = go (1,1) source where
 			(op :_) -> Locate (Location (file, line, col)) (TOperator op) : go (line, col+length op) (drop (length op) cs)
 		where
 		ops = ["==",">=","<=",">","<","~=","%","++","+","*","-","/","and","or","not", "="]
-	goString start pos sofar [] = error "parsing string literal but reached end of file"
+	goString _start _pos _sofar [] = error "parsing string literal but reached end of file"
 	goString start (line, col) sofar ('\\':c:ct)
 		|c == 'n' = next "\n"
 		|c == 't' = next "\t"
@@ -57,8 +57,8 @@ lexer file source = go (1,1) source where
 	goString start (line, col) sofar (ch:ct) = goString start (line, col+1) (sofar ++ [ch]) ct
 
 
-	con pos@(line,col) fun pred cs = location (fun word) : go (line,col + length word) (dropWhile pred cs) where
-		word = takeWhile pred cs
+	con (line,col) fun predicate cs = location (fun word) : go (line,col + length word) (dropWhile predicate cs) where
+		word = takeWhile predicate cs
 		location = Locate (Location (file, line, col))
 
 

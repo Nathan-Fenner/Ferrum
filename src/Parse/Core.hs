@@ -14,7 +14,7 @@ instance Functor (Parse) where
 		Right result -> (a, Right $ f result)
 
 instance Applicative (Parse) where
-	pure x = Parse $ \i -> (0, Right x)
+	pure x = Parse $ const (0, Right x)
 	
 	Parse f <*> Parse g = Parse $ \i -> let (af, rf) = f i in case rf of
 		Left msg -> (af, Left msg)
@@ -67,16 +67,16 @@ test condition first other = do
 	if c then first else other
 
 manyWhile :: Parse Bool -> Parse x -> Parse [x]
-manyWhile check thing = go where
-	go = test check (do
+manyWhile checker thing = go where
+	go = test checker (do
 		x <- thing
 		xs <- go
 		return $ x : xs) (return [])
 
 
 manyUntil :: Parse Bool -> Parse x -> Parse [x]
-manyUntil check thing = go where
-	go = test check (return []) (do
+manyUntil checker thing = go where
+	go = test checker (return []) (do
 		x <- thing
 		xs <- go
 		return $ x : xs)
@@ -102,8 +102,8 @@ check fun = do
 
 expectAt :: Token -> Message -> Parse Location
 expectAt token message = do
-	at <- expectMaybe token
-	case at of
+	location <- expectMaybe token
+	case location of
 		Just x -> return x
 		Nothing -> crash message
 
@@ -128,14 +128,14 @@ expectMaybe :: Token -> Parse (Maybe Location)
 expectMaybe token = do
 	next <- peekMaybe
 	case next of
-		Just (Locate at t) -> if t == token then advance 1 >> return (Just at) else return Nothing
+		Just (Locate loc t) -> if t == token then advance 1 >> return (Just loc) else return Nothing
 		_ -> return Nothing
 
 expectName :: Message -> Parse Name
 expectName message = do
 	next <- peekMaybe
 	case next of
-		Just (Locate at (TWord name)) -> do
+		Just (Locate loc (TWord name)) -> do
 			advance 1
-			return $ Locate at name
+			return $ Locate loc name
 		_ -> crash message
