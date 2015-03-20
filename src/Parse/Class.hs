@@ -6,7 +6,7 @@ import Parse.Type
 import Location
 import Lex
 
-data Class = Class Name [Type] [Member] deriving Show
+data Class = Class { className :: Name, classGeneric :: [Type], classMembers :: [Member] } deriving Show
 
 parseClass :: Parse Class
 parseClass = do
