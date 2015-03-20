@@ -10,11 +10,13 @@ import Parse.Modifier
 import Location
 import Lex
 
-data Field
+data Member
 	= Field Modifier Type Name
+	| Method Type (Maybe Expression) Name [(Type, Name)] [Effect] [Statement]
+	| Constructor [Type] [(Type, Name)] [Effect] [Statement]
 	deriving Show
 
-parseField :: Parse Field
+parseField :: Parse Member
 parseField = do
 	fieldAt <- expect (TSpecial "field") $ Message $ "expected keyword `field` to begin field"
 	modifier <- parseModifier
@@ -23,10 +25,6 @@ parseField = do
 	Locate nameAt name <- expectName $ Message $ "expected name to follow `field` and type"
 	expect (TSpecial ";") $ Message $ "expected `;` to follow field name `" ++ name ++ "`"
 	return $ Field modifier fieldType (Locate nameAt name)
-
-data Method
-	= Method Type (Maybe Expression) Name [(Type, Name)] [Effect] [Statement]
-	deriving Show
 
 parseFrom :: Parse (Maybe Expression)
 parseFrom = do
@@ -62,7 +60,7 @@ parseArguments = do
 				)
 			return $ first : rest
 
-parseMethod :: Parse Method
+parseMethod :: Parse Member
 parseMethod = do
 	methodAt <- expect (TSpecial "method") $ Message $ "expected keyword `method` to begin method"
 	returnType <- parseType
@@ -72,10 +70,6 @@ parseMethod = do
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
 	body <- parseBody $ Message $ "expected function body for method `" ++ name ++ "` at " ++ displayLocation nameAt
 	return $ Method returnType from (Locate nameAt name) args effects body
-
-data Constructor
-	= Constructor [Type] [(Type, Name)] [Effect] [Statement]
-	deriving Show
 
 parseGenerics :: Parse [Type]
 parseGenerics = do
@@ -93,7 +87,7 @@ parseGenerics = do
 			return $ first : rest
 		_ -> return []
 
-parseConstructor :: Parse Constructor
+parseConstructor :: Parse Member
 parseConstructor = do
 	constructorAt <- expect (TSpecial "constructor") $ Message $ "expected keyword `constructor` to begin constructor"
 	generics <- parseGenerics
@@ -101,5 +95,4 @@ parseConstructor = do
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
 	body <- parseBody $ Message $ "expected function body for constructor at " ++ displayLocation constructorAt
 	return $ Constructor generics arguments effects body
-
 
