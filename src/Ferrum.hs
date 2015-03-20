@@ -4,6 +4,10 @@ import Parse.Module
 import Location
 import Lex
 
+import Verify
+import Verify.Type
+import Verify.Class
+
 
 main :: IO ()
 main = do
