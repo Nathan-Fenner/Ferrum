@@ -20,9 +20,12 @@ main = do
 	report parseModule $ lexer "test.txt" source
 	return ()
 
-report :: Show x => Parse x -> [Locate Token] -> IO ()
+report :: Parse Module -> [Locate Token] -> IO ()
 report parser tokens = case run parser tokens of
-	(_, Right result) -> print result
+	(_, Right (Module _ result)) -> do
+		print result
+		putStrLn $ "Verifying class:"
+		print $ map verifyClass result
 	(count, Left (Message message)) -> do
 		print $ (displayLocation $ at $ head $ drop count tokens) ++ "   " ++ message
 		putStrLn $ concat $ map (++"\n") $ map show $ take 10 $ drop count tokens
