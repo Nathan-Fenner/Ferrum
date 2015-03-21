@@ -9,13 +9,32 @@ import Lex
 import Location
 
 data StatementForm
-	= Declare Modifier Type Name (Maybe Expression)
-	| Assign Expression Expression
-	| Perform Expression
-	| If Expression [Statement] [Statement]
-	| While Expression [Statement]
+	= Declare
+		{ declareModifier :: Modifier
+		, declarationType :: Type
+		, declarationName :: Name
+		, declarationExpression :: (Maybe Expression)
+		}
+	| Assign
+		{ assignLeft :: Expression
+		, assignRight :: Expression
+		}
+	| Perform
+		{ performExpression :: Expression
+		}
+	| If
+		{ ifCondition :: Expression
+		, ifThenBody :: [Statement]
+		, ifElseBody :: [Statement]
+		}
+	| While
+		{ whileCondition :: Expression
+		, whileBody :: [Statement]
+		}
 	| Break
-	| Return (Maybe Expression)
+	| Return
+		{ returnExpression :: (Maybe Expression)
+		}
 	deriving Show
 
 type Statement = Locate StatementForm
