@@ -10,7 +10,7 @@ import Verify
 import Verify.Type
 import Verify.Class
 import Verify.Member
-
+import Verify.Statement
 
 main :: IO ()
 main = do
