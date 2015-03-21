@@ -1,10 +1,12 @@
 
 module ExampleProgram {
 
-	class Pair[#x, #y] {
+	class Pair[#x, #y, #z] {
 
 		private field mut #x : left;
 		private field mut #y : right;
+
+		private field #z[Filler[#z]] : myZ;
 
 		public constructor( #x : first, #y : second ) retains first in this, retains second in this {
 			this.left = first;
