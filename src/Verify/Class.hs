@@ -54,6 +54,7 @@ verifyClass
 	>.> verifyClassGenericArgumentsZeroArity
 	>.> verifyClassGenericArgumentsForm
 	>.> verifyClassTypeArity
+	>.> const (return ())
 
 verifyClassTypeArity :: Class -> Verify [ArityFact]
 verifyClassTypeArity given = unifyVerifyArity $ map verifyMemberGenericArity $ classMembers given
