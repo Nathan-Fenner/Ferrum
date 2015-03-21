@@ -1,4 +1,6 @@
 
+{-# OPTIONS_GHC -w #-}
+
 import Parse.Core
 import Parse.Module
 import Location
