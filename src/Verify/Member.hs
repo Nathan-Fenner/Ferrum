@@ -1,4 +1,3 @@
-
 module Verify.Member where
 
 import Verify
