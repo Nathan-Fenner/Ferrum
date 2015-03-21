@@ -31,6 +31,8 @@ executable Ferrum
       Parse.Module,
     Verify,
       Verify.Class,
+      Verify.Type,
+      Verify.Member,
     Lex
   -- other-extensions:    
   build-depends:       data-fix >= 0.0.1, base >=4.7 && <4.8

@@ -41,3 +41,13 @@ addArity facts (name, Locate newAt newArity) = case arityFromFacts facts name of
 unifyArities :: [ArityFact] -> [ArityFact] -> Verify [ArityFact]
 unifyArities [] ys = return ys
 unifyArities (x : xs) ys = addArity ys x >>= unifyArities xs
+
+unifyAllArities :: [[ArityFact]] -> Verify [ArityFact]
+unifyAllArities [] = return []
+unifyAllArities [a] = return a
+unifyAllArities (x:xs) = do
+	rs <- unifyAllArities xs
+	unifyArities rs x
+
+unifyVerifyArity :: [Verify [ArityFact]] -> Verify [ArityFact]
+unifyVerifyArity list = mapM id list >>= unifyAllArities

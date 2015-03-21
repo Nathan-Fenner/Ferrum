@@ -25,35 +25,50 @@ parseVisibility = do
 		Just (Locate _ (TSpecial "protected")) -> advance 1 >> return Protected
 		_ -> crash $ Message $ "expected `public` or `private` or `protected` to indicate member visibility"
 
-data Member = Member Visibility MemberValue
+data Member = Member {memberVisibility :: Visibility, memberValue :: MemberValue}
 	deriving Show
 
 parseMember :: Parse Member
 parseMember = do
 	visibility <- parseVisibility
 	next <- peekMaybe
-	memberValue <- case next of
+	member <- case next of
 		Just (Locate _ (TSpecial "field")) -> parseField
 		Just (Locate _ (TSpecial "method")) -> parseMethod
 		Just (Locate _ (TSpecial "constructor")) -> parseConstructor
 		_ -> crash $ Message $ "expected `field` or `method` or `constructor` to follow visibility to indicate member form"
-	return $ Member visibility memberValue
+	return $ Member visibility member
 
 data MemberValue
-	= Field Modifier Type Name
-	| Method Type (Maybe Expression) Name [(Type, Name)] [Effect] [Statement]
-	| Constructor [(Type, Name)] [Effect] [Statement]
+	= Field
+		{ fieldModifier :: Modifier
+		, fieldType :: Type
+		, fieldName :: Name
+		}
+	| Method
+		{ methodReturnType :: Type
+		, methodFromExpression :: (Maybe Expression)
+		, methodName :: Name
+		, methodArguments :: [(Type, Name)]
+		, methodEffects :: [Effect]
+		, methodBody :: [Statement]
+		}
+	| Constructor
+		{ constructorArguments :: [(Type, Name)]
+		, constructorEffects :: [Effect]
+		, constructorBody :: [Statement]
+		}
 	deriving Show
 
 parseField :: Parse MemberValue
 parseField = do
 	fieldAt <- expectAt (TSpecial "field") $ Message $ "expected keyword `field` to begin field"
 	modifier <- parseModifier
-	fieldType <- parseType
+	myFieldType <- parseType
 	expect (TSpecial ":") $ Message $ "expected `:` to follow type in field starting at " ++ displayLocation fieldAt
 	Locate nameAt name <- expectName $ Message $ "expected name to follow `field` and type"
 	expect (TSpecial ";") $ Message $ "expected `;` to follow field name `" ++ name ++ "`"
-	return $ Field modifier fieldType (Locate nameAt name)
+	return $ Field modifier myFieldType (Locate nameAt name)
 
 parseFrom :: Parse (Maybe Expression)
 parseFrom = do

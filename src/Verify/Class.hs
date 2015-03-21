@@ -6,6 +6,7 @@ import Parse.Type
 import Parse.Class
 import Verify
 import Verify.Type
+import Verify.Member
 import Location
 
 verifyClassName :: Class -> Verify ()
@@ -52,3 +53,7 @@ verifyClass
 	>.> verifyClassGenericArgumentsUnique
 	>.> verifyClassGenericArgumentsZeroArity
 	>.> verifyClassGenericArgumentsForm
+	>.> verifyClassTypeArity
+
+verifyClassTypeArity :: Class -> Verify [ArityFact]
+verifyClassTypeArity given = unifyVerifyArity $ map verifyMemberGenericArity $ classMembers given

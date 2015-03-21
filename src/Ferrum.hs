@@ -9,6 +9,7 @@ import Lex
 import Verify
 import Verify.Type
 import Verify.Class
+import Verify.Member
 
 
 main :: IO ()
