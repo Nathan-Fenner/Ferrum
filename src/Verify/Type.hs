@@ -5,6 +5,9 @@ import Parse.Type
 import Verify
 import Location
 
+concrete :: Type -> Verify [ArityFact]
+concrete given = let c = value given in  return [makeArity (typeName c) (length $ typeArguments c)]
+
 verifyTypeForm :: Type -> Verify ()
 verifyTypeForm typeField = formed (value $ typeName $ value typeField) >> mapM_ verifyTypeForm (typeArguments $ value typeField) where
 	formed "" = Left $ Locate (at typeField) $ Message $ "type names must not be empty, at " ++ displayLocation (at typeField)
