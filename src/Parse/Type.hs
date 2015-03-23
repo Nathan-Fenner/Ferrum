@@ -25,14 +25,14 @@ isConcrete _ = True
 
 type Type = Locate TypeField
 
-parseType :: Parse Type
-parseType = do
+parseType' :: (Name -> [Type] -> TypeField) -> Parse Type
+parseType' fun = do
 	Locate nameAt name <- expectName $ Message "expected type name"
 	open <- peekMaybe
 	case open of
 		Just (Locate openAt (TSpecial "[")) -> do
 			advance 1 -- skip the "["
-			first <- parseType
+			first <- parseTypeAbstract
 			rest <- manyWhile
 				(do
 					comma <- peekMaybe
@@ -42,8 +42,15 @@ parseType = do
 							return True
 						_ -> return False
 				)
-				parseType
+				parseTypeAbstract
 			expect (TSpecial "]") (Message $ "expected `]` to close `[` at " ++ displayLocation openAt)
-			return $ Locate nameAt $ TypeAbstract (Locate nameAt name) (first : rest)
+			return $ Locate nameAt $ fun (Locate nameAt name) (first : rest)
 			
-		_ -> return $ Locate nameAt $ TypeAbstract (Locate nameAt name) [] -- no args
+		_ -> return $ Locate nameAt $ fun (Locate nameAt name) [] -- no args
+
+
+parseTypeAbstract :: Parse Type
+parseTypeAbstract = parseType' TypeAbstract
+
+parseType :: Parse Type
+parseType = parseType' TypeConcrete
