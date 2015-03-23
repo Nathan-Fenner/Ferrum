@@ -2,11 +2,10 @@
 module Parse.Class where
 import Parse.Core
 import Parse.Member
-import Parse.Type
 import Location
 import Lex
 
-data Class = Class { className :: Name, classGeneric :: [Type], classMembers :: [Member] } deriving Show
+data Class = Class { className :: Name, classGeneric :: [Name], classMembers :: [Member] } deriving Show
 
 parseClass :: Parse Class
 parseClass = do

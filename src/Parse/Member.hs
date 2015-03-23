@@ -117,17 +117,17 @@ parseMethod = do
 	body <- parseBody $ Message $ "expected function body for method `" ++ name ++ "` at " ++ displayLocation nameAt
 	return $ Method returnType from (Locate nameAt name) args effects body
 
-parseGenerics :: Parse [Type]
+parseGenerics :: Parse [Name]
 parseGenerics = do
 	next <- peekMaybe
 	case next of
 		Just (Locate openAt (TSpecial "[")) -> do
 			advance 1 -- skip it
-			first <- parseType
+			first <- expectName $ Message $ "expected generic type name to follow `[` at " ++ displayLocation openAt
 			rest <- manyUntil (checkNext (TSpecial "]"))
 				(do
 					expect (TSpecial ",") $ Message $ "expected `,` to separate types in generic list starting at " ++ displayLocation openAt
-					parseType
+					expectName $ Message $ "expected generic type name to follow `,` in generic list started at " ++ displayLocation openAt
 				)
 			expect (TSpecial "]") $ Message $ "expected `]` to close `[` at " ++ displayLocation openAt
 			return $ first : rest

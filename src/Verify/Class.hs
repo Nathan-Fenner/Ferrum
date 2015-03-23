@@ -2,7 +2,6 @@
 module Verify.Class where
 
 import Parse.Core
-import Parse.Type
 import Parse.Class
 import Verify
 import Verify.Type
@@ -20,7 +19,7 @@ verifyClassName given = inspect (value name) where
 	name = className given
 
 verifyClassGenericArgumentsHash :: Class -> Verify ()
-verifyClassGenericArgumentsHash given = mapM_ (inspect . typeName . value) $ classGeneric given where
+verifyClassGenericArgumentsHash given = mapM_ inspect $ classGeneric given where
 	inspect :: Name -> Verify ()
 	inspect name
 		|null (value name) = Left $ Locate (at name) $ Message $ "generic argument name cannot be empty"
@@ -29,30 +28,18 @@ verifyClassGenericArgumentsHash given = mapM_ (inspect . typeName . value) $ cla
 
 
 verifyClassGenericArgumentsUnique :: Class -> Verify ()
-verifyClassGenericArgumentsUnique given = unique $ map (typeName . value) $ classGeneric given where
+verifyClassGenericArgumentsUnique given = unique $ classGeneric given where
 	unique :: [Name] -> Verify ()
 	unique [] = return ()
 	unique (n : ns)
 		|value n `elem` map value ns = Left $ Locate (at n) $ Message $ "generic argument `" ++ (value n) ++ "` is not unique"
 		|otherwise = unique ns
 
-verifyClassGenericArgumentsZeroArity :: Class -> Verify ()
-verifyClassGenericArgumentsZeroArity given = mapM_ inspect (classGeneric given) where
-	inspect :: Type -> Verify ()
-	inspect typeField
-		|null (typeArguments $ value typeField) = return ()
-		|otherwise = Left $ Locate (at typeField) $ Message $ "generic argument names may not have parameters / generic argument type `" ++ (value . typeName . value $ typeField) ++ "` has been given generic arguments"
-
-verifyClassGenericArgumentsForm :: Class -> Verify ()
-verifyClassGenericArgumentsForm given = mapM_ verifyTypeForm (classGeneric given)
-
 verifyClass :: Class -> Verify ()
 verifyClass
 	= verifyClassName
 	>.> verifyClassGenericArgumentsHash
 	>.> verifyClassGenericArgumentsUnique
-	>.> verifyClassGenericArgumentsZeroArity
-	>.> verifyClassGenericArgumentsForm
 	>.> verifyClassTypeArity
 	>.> const (return ())
 
