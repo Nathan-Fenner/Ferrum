@@ -5,7 +5,23 @@ import Parse.Core
 import Lex
 import Location
 
-data TypeField = TypeField { typeName :: Name, typeArguments :: [Type] } deriving Show
+data TypeField
+	= TypeAbstract { abstractName :: Name, abstractArguments :: [Type] }
+	| TypeConcrete { concreteName :: Name, concreteArguments :: [Type] }
+	deriving Show
+
+typeName :: TypeField -> Name
+typeName TypeAbstract { abstractName = name } = name
+typeName TypeConcrete { concreteName = name } = name
+
+typeArguments :: TypeField -> [Type]
+typeArguments TypeAbstract { abstractArguments = args } = args
+typeArguments TypeConcrete { concreteArguments = args } = args
+
+isConcrete :: TypeField -> Bool
+isConcrete TypeAbstract{} = False
+isConcrete _ = True
+
 
 type Type = Locate TypeField
 
@@ -28,6 +44,6 @@ parseType = do
 				)
 				parseType
 			expect (TSpecial "]") (Message $ "expected `]` to close `[` at " ++ displayLocation openAt)
-			return $ Locate nameAt $ TypeField (Locate nameAt name) (first : rest)
+			return $ Locate nameAt $ TypeAbstract (Locate nameAt name) (first : rest)
 			
-		_ -> return $ Locate nameAt $ TypeField (Locate nameAt name) [] -- no args
+		_ -> return $ Locate nameAt $ TypeAbstract (Locate nameAt name) [] -- no args
