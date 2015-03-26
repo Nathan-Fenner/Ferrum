@@ -18,7 +18,7 @@ data Equiv = Equiv Form Form
 generate :: Type -> [Equiv]
 generate field'
 	|null args = []
-	|otherwise = (Equiv (FormOf $ TypeAbstract (typeName field) []) $ arrowBuild args) : concat (map generate args)
+	|otherwise = (Equiv (FormOf $ TypeField (typeName field) []) $ arrowBuild args) : concat (map generate args)
 	where
 	field = value field'
 	args = typeArguments field
