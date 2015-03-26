@@ -28,3 +28,13 @@ generate field'
 generateIs :: Type -> Type -> [Equiv]
 generateIs thing is = Equiv (FormOf $ value thing) (FormOf $ value is) : generate thing
 
+formOfEqual :: Form -> Form -> Bool
+formOfEqual (FormOf a) (FormOf b) = go a b where
+	go x y
+		|value (typeName x) /= value (typeName y) = False
+		|length xa /= length ya = False
+		|otherwise = and $ zipWith go (map value xa) (map value ya)
+		where
+		xa = typeArguments x
+		ya = typeArguments y
+formOfEqual _ _ = False
