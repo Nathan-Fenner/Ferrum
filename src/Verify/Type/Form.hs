@@ -12,13 +12,13 @@ data Form
 	| Concrete
 	deriving Show
 
-data Equiv = Equiv Form Form
+data Equiv = Equiv TypeField Form
 	deriving Show
 
 generate :: Type -> [Equiv]
 generate field'
 	|null args = []
-	|otherwise = (Equiv (FormOf $ TypeField (typeName field) []) $ arrowBuild args) : concat (map generate args)
+	|otherwise = (Equiv (TypeField (typeName field) []) $ arrowBuild args) : concat (map generate args)
 	where
 	field = value field'
 	args = typeArguments field
@@ -26,7 +26,7 @@ generate field'
 	arrowBuild (x:xs) = Arrow (FormOf $ value x) $ arrowBuild xs
 
 generateIs :: Type -> Type -> [Equiv]
-generateIs thing is = Equiv (FormOf $ value thing) (FormOf $ value is) : generate thing
+generateIs thing is = Equiv (value thing) (FormOf $ value is) : generate thing
 
 formOfEqual :: Form -> Form -> Bool
 formOfEqual (FormOf a) (FormOf b) = go a b where
