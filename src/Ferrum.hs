@@ -8,6 +8,7 @@ import Lex
 
 import Verify
 import Verify.Type
+import Verify.Type.Form
 import Verify.Class
 import Verify.Member
 import Verify.Statement
