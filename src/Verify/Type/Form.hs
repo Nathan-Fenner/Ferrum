@@ -86,3 +86,9 @@ unifyAll xs = go [] xs where
 	go old (next:rest) = do
 		new <- unify old next
 		go new rest
+
+unifyWith' :: [Equiv] -> [Equiv] -> Verify [Equiv]
+unifyWith' left right = unifyAll $ left ++ right
+
+unifyWith :: [Equiv] -> Verify [Equiv] -> Verify [Equiv]
+unifyWith xs ys = ys >>= unifyWith' xs
