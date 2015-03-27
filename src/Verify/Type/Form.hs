@@ -78,3 +78,11 @@ unify known (Equiv left (FormOf right))
 unify known (Equiv left right) = case obtainFrom left known of
 	Nothing -> return $ Equiv left right : known
 	Just left' -> unifyForm known left' right 
+
+unifyAll :: [Equiv] -> Verify [Equiv]
+unifyAll xs = go [] xs where
+	go :: [Equiv] -> [Equiv] -> Verify [Equiv]
+	go old [] = return old
+	go old (next:rest) = do
+		new <- unify old next
+		go new rest
