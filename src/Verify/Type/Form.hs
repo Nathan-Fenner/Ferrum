@@ -8,46 +8,50 @@ import Location
 
 
 data Form
-	= FormOf TypeField
+	= FormOf Type
 	| Arrow Form Form
-	| Concrete
+	| Concrete Location
 	deriving Show
 
-data Equiv = Equiv TypeField Form
+data Equiv = Equiv Type Form
 	deriving Show
 
 generate :: Type -> [Equiv]
 generate field'
 	|null args = []
-	|otherwise = (Equiv (TypeField (typeName field) []) $ arrowBuild args) : concat (map generate args)
+	|otherwise = (Equiv (Locate (at field') $ TypeField (typeName field) []) $ arrowBuild args) : concat (map generate args)
 	where
+	field :: TypeField
 	field = value field'
+	args :: [Type]
 	args = typeArguments field
-	arrowBuild [] = FormOf field
-	arrowBuild (x:xs) = Arrow (FormOf $ value x) $ arrowBuild xs
+	arrowBuild :: [Type] -> Form
+	arrowBuild [] = FormOf field'
+	arrowBuild (x:xs) = Arrow (FormOf x) $ arrowBuild xs
 
 generateIs :: Type -> Type -> [Equiv]
-generateIs thing is = Equiv (value thing) (FormOf $ value is) : generate thing
+generateIs thing is = Equiv thing (FormOf is) : generate thing
 
 formOfEqual :: Form -> Form -> Bool
 formOfEqual (FormOf a) (FormOf b) = go a b where
+	go :: Type -> Type -> Bool
 	go x y
-		|value (typeName x) /= value (typeName y) = False
+		|(value $ typeName $ value $ x) /= (value $ typeName $ value $ y) = False
 		|length xa /= length ya = False
-		|otherwise = and $ zipWith go (map value xa) (map value ya)
+		|otherwise = and $ zipWith go xa ya
 		where
-		xa = typeArguments x
-		ya = typeArguments y
+		xa = typeArguments $ value x
+		ya = typeArguments $ value y
 formOfEqual _ _ = False
 
-formContains :: TypeField -> Form -> Bool
+formContains :: Type -> Form -> Bool
 formContains f x
 	|formOfEqual (FormOf f) x = True
 	|otherwise = case x of
 		Arrow left right -> formContains f left || formContains f right
 		_ -> False
 
-obtainFrom :: TypeField -> [Equiv] -> Maybe Form
+obtainFrom :: Type -> [Equiv] -> Maybe Form
 obtainFrom _ [] = Nothing
 obtainFrom e (Equiv l r:xs)
 	|formOfEqual (FormOf l) (FormOf e) = Just r
@@ -55,10 +59,12 @@ obtainFrom e (Equiv l r:xs)
 
 unifyForm :: [Equiv] -> Form -> Form -> Verify [Equiv]
 unifyForm known (FormOf name) right = unify known (Equiv name right)
-unifyForm known Concrete Concrete = return known
+unifyForm known (Concrete _) (Concrete _) = return known
 unifyForm known (Arrow leftA rightA) (Arrow leftB rightB) = do
 	known' <- unifyForm known leftA leftB
 	unifyForm known' rightA rightB
+unifyForm _known (Concrete loc) (Arrow _ _) = Left $ Locate loc $ Message $ "attempted to unify `*` with `_ -> _`"
+unifyForm _known (Arrow _ _) (Concrete loc) = Left $ Locate loc $ Message $ "attempted to unify `_ -> _` with `*`"
 unifyForm known left (FormOf right) = unifyForm known (FormOf right) left
 
 unify :: [Equiv] -> Equiv -> Verify [Equiv]
