@@ -14,4 +14,5 @@ parseClass = do
 	generics <- parseGenerics
 	expect (TSpecial "{") $ Message $ "expected `{` to follow class head for `" ++ name ++ "` to begin class body"
 	members <- manyUntil (checkNext (TSpecial "}")) parseMember
+	expect (TSpecial "}") $ Message $ "expected `}` to end class definition for `" ++ name ++ "` defined at " ++ displayLocation nameAt
 	return $ Class (Locate nameAt name) generics members
