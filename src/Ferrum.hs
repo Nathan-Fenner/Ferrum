@@ -10,6 +10,7 @@ import Verify
 import Verify.Type
 import Verify.Type.Form
 import Verify.Class
+import Verify.Module
 import Verify.Member
 import Verify.Statement
 
@@ -23,10 +24,10 @@ main = do
 
 report :: Parse Module -> [Locate Token] -> IO ()
 report parser tokens = case run parser tokens of
-	(_, Right (Module _ result)) -> do
-		print result
-		putStrLn $ "Verifying class:"
-		print $ map verifyClass result
+	(_, Right parseModule) -> do
+		print parseModule
+		putStrLn $ "Verifying module:"
+		print $ verifyModule parseModule
 	(count, Left (Message message)) -> do
 		print $ (displayLocation $ at $ head $ drop count tokens) ++ "   " ++ message
 		putStrLn $ concat $ map (++"\n") $ map show $ take 10 $ drop count tokens

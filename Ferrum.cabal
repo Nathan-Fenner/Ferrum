@@ -35,6 +35,7 @@ executable Ferrum
         Verify.Type.Form,
       Verify.Member,
       Verify.Statement,
+      Verify.Module,
     Lex
   -- other-extensions:    
   build-depends:       data-fix >= 0.0.1, base >=4.7 && <4.8
