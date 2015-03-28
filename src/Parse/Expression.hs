@@ -32,9 +32,9 @@ parseAtomCore = do
 		TWord name -> return $ Locate atExp $ Name name
 		TInt int -> return $ Locate atExp $ LiteralInt int
 		TString string -> return $ Locate atExp $ LiteralString string
-		_ -> crash message
+		_ -> advance (-1) >> crash message
 	where
-		message = Message "expected literal"
+		message = Message "expected name, literal, prefix operator or `(` to begin atomic expression"
 
 parseAtom :: Parse Expression
 parseAtom = do
