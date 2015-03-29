@@ -17,16 +17,14 @@ data Equiv = Equiv Type Form
 	deriving Show
 
 generate :: Type -> [Equiv]
-generate field'
+generate field
 	|null args = []
-	|otherwise = (Equiv (Locate (at field') $ TypeField (typeName field) []) $ arrowBuild args) : concat (map generate args)
+	|otherwise = (Equiv (Type (typeName field) []) $ arrowBuild args) : concat (map generate args)
 	where
-	field :: TypeField
-	field = value field'
 	args :: [Type]
 	args = typeArguments field
 	arrowBuild :: [Type] -> Form
-	arrowBuild [] = FormOf field'
+	arrowBuild [] = FormOf field
 	arrowBuild (x:xs) = Arrow (FormOf x) $ arrowBuild xs
 
 generateIs :: Type -> Type -> [Equiv]
@@ -36,12 +34,12 @@ formOfEqual :: Form -> Form -> Bool
 formOfEqual (FormOf a) (FormOf b) = go a b where
 	go :: Type -> Type -> Bool
 	go x y
-		|(value $ typeName $ value $ x) /= (value $ typeName $ value $ y) = False
+		|(value $ typeName x) /= (value $ typeName y) = False
 		|length xa /= length ya = False
 		|otherwise = and $ zipWith go xa ya
 		where
-		xa = typeArguments $ value x
-		ya = typeArguments $ value y
+		xa = typeArguments x
+		ya = typeArguments y
 formOfEqual _ _ = False
 
 formContains :: Type -> Form -> Bool

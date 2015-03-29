@@ -44,8 +44,8 @@ parseDeclare = do
 	varAt <- expectAt (TSpecial "var") (Message $ "expected `var` to begin variable declaration")
 	-- next there's a type
 	modifier <- parseModifier
-	Locate typeAt varType <- parseType
-	expect (TSpecial ":") (Message $ "expected `:` to follow variable declaration type starting at " ++ displayLocation typeAt)
+	varType <- parseType
+	expect (TSpecial ":") (Message $ "expected `:` to follow variable declaration type starting at " ++ (displayLocation $ typeAt $ varType) )
 	Locate nameAt name <- expectName $ Message $ "expected name to follow `:` in type declaration beginning at " ++ displayLocation varAt
 	-- here, we may see an `=` instead of a `;`
 	next <- peekMaybe
@@ -55,10 +55,10 @@ parseDeclare = do
 			-- now get an expression
 			expr <- parseExpression
 			expect (TSpecial ";") $ Message $ "expected an `;` to follow declaration assignment of `" ++ name ++ "` at " ++ displayLocation nameAt
-			return $ Locate varAt $ Declare modifier (Locate typeAt varType) (Locate nameAt name) (Just expr) 
+			return $ Locate varAt $ Declare modifier varType (Locate nameAt name) (Just expr) 
 		Just (Locate _ (TSpecial ";")) -> do
 			advance 1 -- skip the `;`
-			return $ Locate varAt $ Declare modifier (Locate typeAt varType) (Locate nameAt name) Nothing
+			return $ Locate varAt $ Declare modifier varType (Locate nameAt name) Nothing
 		_ -> crash $ Message $ "expected an `=` or a `;` to follow variable declaration of `" ++ name ++ "` beginning at " ++ displayLocation varAt
 
 

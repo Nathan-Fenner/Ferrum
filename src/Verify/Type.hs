@@ -11,14 +11,12 @@ import Verify.Type.Form
 import Location
 
 relabelType :: String -> String -> Type -> Type
-relabelType from to given = Locate (at givenName) $
-	TypeField
+relabelType from to given = Type
 		(if from == value givenName then newName else givenName)
-		(map (relabelType from to) $ typeArguments typeField)
+		(map (relabelType from to) $ typeArguments given)
 	where
-	typeField = value given
 	newName = Locate (at givenName) to
-	givenName = typeName $ typeField
+	givenName = typeName $ given
 
 relabelForm :: String -> String -> Form -> Form
 relabelForm from to (FormOf t) = FormOf $ relabelType from to t

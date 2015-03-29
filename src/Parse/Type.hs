@@ -5,11 +5,12 @@ import Parse.Core
 import Lex
 import Location
 
-data TypeField
-	= TypeField { typeName :: Name, typeArguments :: [Type] }
+data Type
+	= Type { typeName :: Name, typeArguments :: [Type] }
 	deriving Show
 
-type Type = Locate TypeField
+typeAt :: Type -> Location
+typeAt = at . typeName
 
 parseType :: Parse Type
 parseType = do
@@ -30,7 +31,7 @@ parseType = do
 				)
 				parseType
 			expect (TSpecial "]") (Message $ "expected `]` to close `[` at " ++ displayLocation openAt)
-			return $ Locate nameAt $ TypeField (Locate nameAt name) (first : rest)
+			return $ Type (Locate nameAt name) (first : rest)
 			
-		_ -> return $ Locate nameAt $ TypeField (Locate nameAt name) [] -- no args
+		_ -> return $ Type (Locate nameAt name) [] -- no args
 
