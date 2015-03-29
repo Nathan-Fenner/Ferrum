@@ -5,7 +5,7 @@ import Parse.Core
 import Lex
 import Location
 
-data Module = Module Name [Class] deriving Show
+data Module = Module { modName :: Name, modClasses :: [Class]} deriving Show
 
 parseModule :: Parse Module
 parseModule = do
