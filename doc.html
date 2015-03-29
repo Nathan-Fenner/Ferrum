@@ -1,0 +1,49 @@
+<!dcotype html>
+<html>
+<head>
+<title>Ferrum - Documentation</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	font-size:20px;
+}
+code {
+	white-space: pre;
+	font-family: Consolas, "Courier New", monospace;
+}
+h1, h2, h3 {
+	padding: 0;
+	margin: 0;
+}
+</style>
+</head>
+<body>
+<h1><a name="ferrum_documentation">Ferrum - Documentation</a></h1>
+<h2><a name="contents">Contents</a></h2>
+<h2><a name="types">Types</a></h2>
+<h3><a name="atomic_types">Atomic Types</a></h3>
+<p>
+Atomic types are those which are not compositions of other types. Not ever type defined in the standard prelude is atomic; many of these are, in fact, compositions of other constructed or atomic types.
+</p>
+<p>
+Some atomic types can be replaced by constructed types with identical interfaces, but generally this results in poorer performance. Consequently, it is generally beneficial to use the appropriate atomic type if one exists, rather than creating your own replacement.
+</p>
+<p>
+Atomic and constructed types are treated identically by the actual machine and memory model. Through ordinary program execution and software design, they can indeed be used essentially intercheably. It is usually not important whether a given type is atomic or constructed, unless you are interested in replicating its performance properties in a constructed type (in which case, it may be difficult or impossible to accurately reproduce the atomi type's performance).
+</p>
+<p>
+There are a small number of atomic types. Some of them can be replaced efficiently with constructed types, but are atomic in order to best allow the interpreter or compiler to run. Here is the complete list:
+</p>
+<ul>
+	<li><code>Bool</code></li>
+	<li><code>Int</code></li>
+	<li><code>Int64</code></li>
+	<li><code>Float</code></li>
+	<li><code>Double</code></li>
+	<li><code>Char</code></li>
+	<li><code>Byte</code></li>
+	<li><code>Array[#T]</code></li>
+	<li>functions</li>
+</ul>
+</body>
+</html>
