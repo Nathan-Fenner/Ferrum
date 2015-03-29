@@ -32,9 +32,12 @@ extractFormsModule :: Module -> [Equiv]
 extractFormsModule m = concat $ map extractFormsClass $ modClasses m
 
 extractFormsClass :: Class -> [Equiv]
-extractFormsClass c = undefined
+extractFormsClass c = undefined : concat (map extractFormsMember members)
 	where
 	generics = classGeneric c
 	members = classMembers c
 	name = className c
+
+extractFormsMember :: Member -> [Equiv]
+extractFormsMember = undefined
 
