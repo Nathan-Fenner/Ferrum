@@ -15,7 +15,7 @@ parseKindAtom = do
 			k <- parseKind
 			expect (TSpecial ")") $ Message $ "Expected `)` to match `(` in kind at " ++ displayLocation a
 			return k
-		TSpecial "#" -> do
+		TWord "#" -> do
 			return Concrete
 		_ -> advance (-1) >> (crash $ Message $ "Expected kind, in particular a `#` or a `(`")
 
