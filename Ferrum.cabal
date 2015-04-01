@@ -29,6 +29,7 @@ executable Ferrum
       Syntax.Member,
       Syntax.Class,
       Syntax.Module,
+      Syntax.Kind,
     Parse,
       Parse.Core,
       Parse.Expression,
