@@ -40,6 +40,7 @@ executable Ferrum
       Parse.Member,
       Parse.Class,
       Parse.Module,
+      Parse.Kind,
     Verify,
       Verify.Class,
       Verify.Type,

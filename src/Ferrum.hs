@@ -16,6 +16,8 @@ import Verify.Module
 import Verify.Member
 import Verify.Statement
 
+import Parse.Kind
+
 main :: IO ()
 main = do
 	source <- readFile "test.txt"
