@@ -16,7 +16,7 @@ import Verify.Module
 import Verify.Member
 import Verify.Statement
 
-import Parse.Kind
+import Verify.Kind
 
 main :: IO ()
 main = do

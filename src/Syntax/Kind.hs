@@ -13,3 +13,14 @@ simpleKind n
 kindArity :: Kind -> Int
 kindArity Concrete = 0
 kindArity (Arrow _ right) = 1 + kindArity right
+
+exampleKind :: Int -> String
+exampleKind 0 = "#"
+exampleKind n
+	|n < 0 = error "exampleKind must be given a non-negative parameter"
+	|otherwise = "# -> " ++ exampleKind (n-1)
+
+niceKind :: Kind -> String
+niceKind Concrete = "#"
+niceKind (Arrow Concrete right)  = "# -> " ++ niceKind right
+niceKind (Arrow left right) = "(" ++ niceKind left ++ ") -> " ++ niceKind right
