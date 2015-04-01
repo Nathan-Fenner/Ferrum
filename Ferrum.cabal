@@ -44,7 +44,6 @@ executable Ferrum
     Verify,
       Verify.Class,
       Verify.Type,
-        Verify.Type.Form,
       Verify.Member,
       Verify.Statement,
       Verify.Module,

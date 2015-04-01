@@ -10,7 +10,6 @@ import Lex
 
 import Verify
 import Verify.Type
-import Verify.Type.Form
 import Verify.Class
 import Verify.Module
 import Verify.Member
