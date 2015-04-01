@@ -1,6 +1,8 @@
 
 module Parse.Statement where
 
+import Syntax.Statement
+import Syntax.Type
 import Message
 import Parse.Core
 import Parse.Expression
@@ -9,36 +11,7 @@ import Parse.Modifier
 import Lex
 import Location
 
-data StatementForm
-	= Declare
-		{ declareModifier :: Modifier
-		, declarationType :: Type
-		, declarationName :: Name
-		, declarationExpression :: (Maybe Expression)
-		}
-	| Assign
-		{ assignLeft :: Expression
-		, assignRight :: Expression
-		}
-	| Perform
-		{ performExpression :: Expression
-		}
-	| If
-		{ ifCondition :: Expression
-		, ifThenBody :: [Statement]
-		, ifElseBody :: [Statement]
-		}
-	| While
-		{ whileCondition :: Expression
-		, whileBody :: [Statement]
-		}
-	| Break
-	| Return
-		{ returnExpression :: (Maybe Expression)
-		}
-	deriving Show
 
-type Statement = Locate StatementForm
 
 parseDeclare :: Parse Statement
 parseDeclare = do

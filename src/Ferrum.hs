@@ -3,6 +3,7 @@
 
 import Message
 import Parse.Core
+import Syntax.Module
 import Parse.Module
 import Location
 import Lex

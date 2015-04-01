@@ -4,10 +4,9 @@ module Verify.Module where
 import Message
 import Verify
 import Verify.Class
-import Parse.Module
-import Parse.Class
+import Syntax.Module
+import Syntax.Class
 import Location
-import Parse.Core
 
 verifyModuleClassesUnique :: Module -> Verify ()
 verifyModuleClassesUnique (Module _name classes) = unique $ map className classes where

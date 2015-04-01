@@ -1,16 +1,10 @@
 
 module Parse.Modifier where
 
+import Syntax.Modifier
 import Parse.Core
 import Lex
 import Location
-
-data Modifier
-	= None
-	| Mutable
-	| Alterable
-	| Final
-	deriving (Show, Eq)
 
 parseModifier :: Parse Modifier
 parseModifier = do

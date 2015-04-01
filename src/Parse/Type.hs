@@ -1,17 +1,12 @@
 
 module Parse.Type where
 
+import Syntax.Type
 import Parse.Core
 import Lex
 import Message
 import Location
 
-data Type
-	= Type { typeName :: Name, typeArguments :: [Type] }
-	deriving Show
-
-typeAt :: Type -> Location
-typeAt = at . typeName
 
 parseType :: Parse Type
 parseType = do

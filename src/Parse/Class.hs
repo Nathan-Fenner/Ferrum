@@ -1,13 +1,14 @@
 
 module Parse.Class where
 
+import Syntax.Class
 import Message
 import Parse.Core
 import Parse.Member
 import Location
 import Lex
 
-data Class = Class { className :: Name, classGeneric :: [Name], classMembers :: [Member] } deriving Show
+
 
 parseClass :: Parse Class
 parseClass = do

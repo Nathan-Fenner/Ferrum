@@ -2,7 +2,7 @@
 module Verify.Type.Form where
 
 import Message
-import Parse.Type
+import Syntax.Type
 import Verify
 import Location
 

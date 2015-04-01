@@ -4,7 +4,6 @@
 module Verify where
 
 import Message
-import Parse.Core
 import Location
 
 type Verify a = Either (Locate Message) a

@@ -1,14 +1,10 @@
 
 module Verify.Type where
 
-import Message
-import Parse.Core
-import Parse.Type
-import Parse.Statement
-import Parse.Member
-import Parse.Class
-import Parse.Module
-import Verify
+import Syntax.Type
+import Syntax.Class
+import Syntax.Module
+import Syntax.Member
 import Verify.Type.Form
 import Location
 
@@ -23,7 +19,7 @@ relabelType from to given = Type
 relabelForm :: String -> String -> Form -> Form
 relabelForm from to (FormOf t) = FormOf $ relabelType from to t
 relabelForm from to (Arrow left right) = Arrow (relabelForm from to left) (relabelForm from to right)
-relabelForm from to c = c
+relabelForm _from _to c = c
 
 relabelEquiv :: String -> String -> Equiv -> Equiv
 relabelEquiv from to (Equiv equivType equivForm) = Equiv
@@ -36,7 +32,6 @@ extractFormsModule m = concat $ map extractFormsClass $ modClasses m
 extractFormsClass :: Class -> [Equiv]
 extractFormsClass c = undefined : concat (map extractFormsMember members)
 	where
-	generics = classGeneric c
 	members = classMembers c
 	name = className c
 

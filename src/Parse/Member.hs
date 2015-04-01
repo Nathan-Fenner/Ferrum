@@ -1,6 +1,9 @@
 
 module Parse.Member where
 
+import Syntax.Expression
+import Syntax.Type
+import Syntax.Member
 import Message
 import Parse.Core
 import Parse.Type
@@ -11,11 +14,6 @@ import Parse.Modifier
 import Location
 import Lex
 
-data Visibility
-	= Public
-	| Private
-	| Protected
-	deriving Show
 
 parseVisibility :: Parse Visibility
 parseVisibility = do
@@ -25,9 +23,6 @@ parseVisibility = do
 		Just (Locate _ (TSpecial "private")) -> advance 1 >> return Private
 		Just (Locate _ (TSpecial "protected")) -> advance 1 >> return Protected
 		_ -> crash $ Message $ "expected `public` or `private` or `protected` to indicate member visibility"
-
-data Member = Member {memberVisibility :: Visibility, memberValue :: MemberValue}
-	deriving Show
 
 parseMember :: Parse Member
 parseMember = do
@@ -40,26 +35,6 @@ parseMember = do
 		_ -> crash $ Message $ "expected `field` or `method` or `constructor` to follow visibility to indicate member form"
 	return $ Member visibility member
 
-data MemberValue
-	= Field
-		{ fieldModifier :: Modifier
-		, fieldType :: Type
-		, fieldName :: Name
-		}
-	| Method
-		{ methodReturnType :: Type
-		, methodFromExpression :: (Maybe Expression)
-		, methodName :: Name
-		, methodArguments :: [(Type, Name)]
-		, methodEffects :: [Effect]
-		, methodBody :: [Statement]
-		}
-	| Constructor
-		{ constructorArguments :: [(Type, Name)]
-		, constructorEffects :: [Effect]
-		, constructorBody :: [Statement]
-		}
-	deriving Show
 
 parseField :: Parse MemberValue
 parseField = do

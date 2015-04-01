@@ -6,16 +6,8 @@ import Parse.Core
 import Parse.Expression
 import Lex
 import Location
+import Syntax.Effect
 
-data EffectValue
-	= Discard Expression
-	| Modify Expression
-	| Alter Expression
-	| Retain Expression Expression
-	| Effect Expression
-	deriving Show
-
-type Effect = Locate EffectValue
 
 parseEffectDiscard :: Parse Effect
 parseEffectDiscard = do

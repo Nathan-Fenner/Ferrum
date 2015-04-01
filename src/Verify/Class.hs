@@ -2,11 +2,8 @@
 module Verify.Class where
 
 import Message
-import Parse.Core
-import Parse.Class
+import Syntax.Class
 import Verify
-import Verify.Type
-import Verify.Member
 import Location
 
 verifyClassName :: Class -> Verify ()
