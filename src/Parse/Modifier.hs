@@ -1,5 +1,6 @@
 
 module Parse.Modifier where
+
 import Parse.Core
 import Lex
 import Location

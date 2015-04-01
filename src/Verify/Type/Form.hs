@@ -1,8 +1,8 @@
 
 module Verify.Type.Form where
 
+import Message
 import Parse.Type
-import Parse.Core
 import Verify
 import Location
 

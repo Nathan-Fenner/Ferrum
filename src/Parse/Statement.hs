@@ -1,6 +1,7 @@
 
 module Parse.Statement where
 
+import Message
 import Parse.Core
 import Parse.Expression
 import Parse.Type

@@ -1,6 +1,7 @@
 
 module Parse.Expression where
 
+import Message
 import Parse.Core
 import Lex
 import Location

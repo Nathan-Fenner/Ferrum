@@ -4,6 +4,7 @@ module Parse.Core where
 import Location
 import Control.Applicative
 import Lex
+import Message
 
 
 newtype Parse result = Parse { run :: [Locate Token] -> (Int, Either Message result ) }
@@ -29,8 +30,6 @@ instance Monad (Parse) where
 	Parse f >>= into = Parse $ \i -> let (af, rf) = f i in case rf of
 		Left msg -> (af, Left msg)
 		Right thing -> let Parse q = into thing; (aq, rq) = q (drop af i) in (aq + af, rq)
-
-newtype Message = Message String deriving Show
 
 advance :: Int -> Parse ()
 advance n = Parse $ const (n, Right ())

@@ -3,6 +3,7 @@
 
 module Verify where
 
+import Message
 import Parse.Core
 import Location
 

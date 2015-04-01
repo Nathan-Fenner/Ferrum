@@ -1,6 +1,7 @@
 
 {-# OPTIONS_GHC -w #-}
 
+import Message
 import Parse.Core
 import Parse.Module
 import Location

@@ -3,6 +3,7 @@ module Parse.Type where
 
 import Parse.Core
 import Lex
+import Message
 import Location
 
 data Type

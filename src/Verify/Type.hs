@@ -1,5 +1,7 @@
 
 module Verify.Type where
+
+import Message
 import Parse.Core
 import Parse.Type
 import Parse.Statement

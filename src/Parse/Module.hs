@@ -2,6 +2,7 @@
 module Parse.Module where
 import Parse.Class
 import Parse.Core
+import Message
 import Lex
 import Location
 

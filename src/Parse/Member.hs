@@ -1,6 +1,7 @@
 
 module Parse.Member where
 
+import Message
 import Parse.Core
 import Parse.Type
 import Parse.Expression

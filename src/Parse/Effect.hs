@@ -1,6 +1,7 @@
 
 module Parse.Effect where
 
+import Message
 import Parse.Core
 import Parse.Expression
 import Lex

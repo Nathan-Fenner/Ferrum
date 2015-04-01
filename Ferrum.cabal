@@ -19,6 +19,7 @@ executable Ferrum
   main-is: Ferrum.hs            
   other-modules:       
     Location,
+    Message,
     Parse,
       Parse.Core,
       Parse.Expression,

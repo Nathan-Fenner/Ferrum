@@ -1,6 +1,7 @@
 
 module Verify.Module where
 
+import Message
 import Verify
 import Verify.Class
 import Parse.Module

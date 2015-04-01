@@ -1,5 +1,7 @@
 
 module Parse.Class where
+
+import Message
 import Parse.Core
 import Parse.Member
 import Location
