@@ -86,7 +86,7 @@ verifyModuleKind m@Module{ modClasses = classes } = do
 	let internal = map (\c -> (value $ className c, kindOfClass c)) classes
 
 	-- TODO: actually get the REAL external (requires loading all imported modules)
-	let external = [("Int",Concrete),("Maybe",Arrow Concrete Concrete)]
+	let external = [("Void",Concrete),("Int",Concrete),("Maybe",Arrow Concrete Concrete)]
 	
 	let known = internal ++ external
 	-- internals must be checked too
