@@ -76,6 +76,16 @@ unifyAtomicTypes unifies a' b'
 	tA = Type a' []
 	tB = Type b' []
 
+unifyAtomicNonatomicTypes :: [(String, Type)] -> Name -> Type -> Maybe [(String, Type)]
+unifyAtomicNonatomicTypes unifies a' n
+	|null a = error "TYPE IS EMPTY?"
+	|head a == '#' = case fromUnifies unifies a of
+		Nothing -> Just $ (a, n) : unifies
+		Just other -> unifyTypes unifies other n
+	where
+	a = value a'
+
+
 unifyTypes :: [(String, Type)] -> Type -> Type -> Maybe [(String, Type)]
 unifyTypes unifies a b
 	|atomic a && atomic b = unifyAtomicTypes unifies (typeName a) (typeName b)
