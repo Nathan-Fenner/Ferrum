@@ -3,6 +3,7 @@ module Verify.Kind where
 
 import Verify
 import Syntax.Kind
+import Syntax.Type
 import Syntax.Class
 import Syntax.Module
 import Location
@@ -22,3 +23,25 @@ simpleClassKindCheck c = case
 simpleModuleKindCheck :: Module -> Verify ()
 simpleModuleKindCheck (Module _ classes) = mapM_ simpleClassKindCheck classes
 
+kindFrom :: [(String, Kind)] -> Name -> Verify Kind
+kindFrom [] name = Left $ Locate (at name) $ Message $ "cannot find kind information (could be out-of-scope or misspelled) for type `" ++ value name ++ "`"
+kindFrom ((v, k) : t) name
+	|v == value name = return k
+	|otherwise = kindFrom t name
+
+assert :: Bool -> Locate Message -> Verify ()
+assert v msg
+	|not v = Left msg
+	|otherwise = return ()
+
+kindOfType :: [(String, Kind)] -> Type -> Verify Kind
+kindOfType known (Type n []) = do
+	kindFrom known n
+kindOfType known (Type n args) = do
+	initKind <- kindOfType known (Type n (init args))
+	case initKind of
+		Concrete -> Left $ Locate (typeAt $ last args) $ Message $ "Type `" ++ value n ++ "` at " ++ displayLocation (at n) ++ " is applied to too many arguments"
+		Arrow left right -> do
+			argKind <- kindOfType known (last args)
+			assert (left == argKind) $ Locate (typeAt $ last args) $ Message $ "Type argument `" ++ show (last args) ++ "` to type `" ++ (value n) ++ "` at " ++ displayLocation (at n) ++ " has incorrect kind; expected " ++ niceKind left ++ " but got " ++ niceKind argKind
+			return right
