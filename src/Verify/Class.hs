@@ -3,6 +3,7 @@ module Verify.Class where
 
 import Message
 import Syntax.Class
+import Syntax.Type
 import Verify
 import Location
 
@@ -40,3 +41,41 @@ verifyClass
 	>.> verifyClassGenericArgumentsUnique
 	>.> const (return ())
 
+
+fromUnifies :: [(String, Type)] -> String -> Maybe Type
+fromUnifies unifies name = case map snd $ filter (\(n,_) -> n == name) unifies of
+	[] -> Nothing
+	(x:_) -> Just x
+
+hasUnify :: [(String, Type)] -> String -> Bool
+hasUnify list name = name `elem` map fst list
+
+atomic :: Type -> Bool
+atomic (Type _ []) = True
+atomic _ = False
+
+unifyAtomicTypes :: [(String, Type)] -> Name -> Name -> Maybe [(String, Type)]
+unifyAtomicTypes unifies a' b'
+	|a == b = Just unifies
+	|null a || null b = error "TYPES ARE EMPTY?"
+	|head a == '#' && head b == '#' = case fromUnifies unifies a of
+		Nothing -> case fromUnifies unifies b of
+			Nothing -> Just $ (a, tB) : unifies
+			Just otherB -> unifyTypes unifies tA otherB
+		Just otherA -> unifyTypes unifies otherA tB
+	|head a == '#' = case fromUnifies unifies a of
+		Nothing -> Just $ (a, tB) : unifies
+		Just otherA -> unifyTypes unifies otherA tB
+	|head b == '#' = case fromUnifies unifies b of
+		Nothing -> Just $ (b, tA) : unifies
+		Just otherB -> unifyTypes unifies tA otherB
+	|otherwise = if a == b then Just unifies else Nothing
+	where
+	a = value a'
+	b = value b'
+	tA = Type a' []
+	tB = Type b' []
+
+unifyTypes :: [(String, Type)] -> Type -> Type -> Maybe [(String, Type)]
+unifyTypes unifies a b
+	|atomic a && atomic b = unifyAtomicTypes unifies (typeName a) (typeName b)
