@@ -14,3 +14,8 @@ type Verify a = Either (Locate Message) a
 (>>=:) :: Monad m => m a -> [a -> m a] -> m a
 e >>=: [] = e
 e >>=: (c : cs) = (e >>= c) >>=: cs
+
+assert :: Bool -> Locate Message -> Verify ()
+assert v msg
+	|not v = Left msg
+	|otherwise = return ()

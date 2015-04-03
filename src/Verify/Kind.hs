@@ -29,11 +29,6 @@ kindFrom ((v, k) : t) name
 	|v == value name = return k
 	|otherwise = kindFrom t name
 
-assert :: Bool -> Locate Message -> Verify ()
-assert v msg
-	|not v = Left msg
-	|otherwise = return ()
-
 kindOfType :: [(String, Kind)] -> Type -> Verify Kind
 kindOfType known (Type n []) = do
 	kindFrom known n
