@@ -91,3 +91,9 @@ unifyTypes unifies a b
 	|atomic a && atomic b = unifyAtomicTypes unifies (typeName a) (typeName b)
 	|atomic a && not (atomic b) = unifyAtomicNonatomicTypes unifies (typeName a) b
 	|not (atomic a) && atomic b = unifyAtomicNonatomicTypes unifies (typeName b) a
+	|otherwise = unifyTypes unifies lastA lastB >>= (\us -> unifyTypes us shortA shortB)
+	where
+	lastA = last $ typeArguments a
+	lastB = last $ typeArguments b
+	shortA = Type (typeName a) (init $ typeArguments a)
+	shortB = Type (typeName b) (init $ typeArguments b)
