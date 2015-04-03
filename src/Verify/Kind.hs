@@ -4,6 +4,7 @@ module Verify.Kind where
 import Verify
 import Syntax.Kind
 import Syntax.Type
+import Syntax.Statement
 import Syntax.Class
 import Syntax.Module
 import Location
@@ -42,3 +43,17 @@ verifyTypeConcrete :: [(String, Kind)] -> Type -> Verify ()
 verifyTypeConcrete known t = do
 	k <- kindOfType known t
 	assert (k == Concrete) $ Locate (typeAt t) $ Message $ "Type expression `" ++ show t ++ "` is expected to be concrete (#) but actually has kind `" ++ niceKind k ++ "`"
+
+verifyStatementKind :: [(String, Kind)] -> Statement -> Verify ()
+verifyStatementKind known statement' = case statement of
+	Declare { declarationType = declared } -> verifyTypeConcrete known declared
+	If { ifThenBody = thenBody, ifElseBody = elseBody } -> do
+		verifyBlockKind known thenBody
+		verifyBlockKind known elseBody
+	While { whileBody = body } -> verifyBlockKind known body
+	_ -> return ()
+	where
+	statement = value statement'
+
+verifyBlockKind :: [(String,Kind)] -> [Statement] -> Verify ()
+verifyBlockKind known = mapM_ (verifyStatementKind known)
