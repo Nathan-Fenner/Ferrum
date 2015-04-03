@@ -24,6 +24,7 @@ lexer file source = go (1,1) source where
 			(\name -> if name `elem` ops then TOperator name else if name `elem` specialWords then TSpecial name else TWord name)
 			isLetter
 			cs
+		|take 2 cs `elem` ["::"] = Locate (Location (file, line, col)) (TSpecial (take 2 cs)) : go (line, col+2) (drop 2 cs)
 		|ch `elem` "[](){}.,:;" = Locate (Location (file, line, col)) (TSpecial [ch]) : go (line,col+1) ct
 		|isDigit ch = con pos (TInt . read) isDigit cs
 		|ch == ' ' = go (line,col+1) ct
@@ -37,7 +38,7 @@ lexer file source = go (1,1) source where
 			[] -> error $ "not a valid operator at " ++ show pos
 			(op :_) -> Locate (Location (file, line, col)) (TOperator op) : go (line, col+length op) (drop (length op) cs)
 		where
-		ops = ["==",">=","<=",">","<","~=","%","++","+","*","-","/","and","or","not", "=", "::", "->"]
+		ops = ["->", "==",">=","<=",">","<","~=","%","++","+","*","-","/","and","or","not", "=", "::"]
 	goString _start _pos _sofar [] = error "parsing string literal but reached end of file"
 	goString start (line, col) sofar ('\\':c:ct)
 		|c == 'n' = next "\n"

@@ -42,8 +42,8 @@ parseKindLabel :: Parse (Maybe Kind)
 parseKindLabel = do
 	label <- peekMaybe
 	case label of
-		Just (Locate _ (TOperator "::")) -> do
-			expect (TOperator "::") $ Message $ "must have been a `::` here preceding kind definition"
+		Just (Locate _ (TSpecial "::")) -> do
+			expect (TSpecial "::") $ Message $ "must have been a `::` here preceding kind definition"
 			fmap Just parseKind
 		_ -> return Nothing
 

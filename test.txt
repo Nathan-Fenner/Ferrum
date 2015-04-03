@@ -1,7 +1,7 @@
 
 module ExampleProgram {
 
-	class Pair[#x, #y, #z] {
+	class Pair[#x, #y, #z] :: (# -> # -> (# -> #) -> #) {
 
 		private field mut #x : left;
 		private field mut #y : right;

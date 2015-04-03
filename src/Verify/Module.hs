@@ -4,6 +4,7 @@ module Verify.Module where
 import Message
 import Verify
 import Verify.Class
+import Verify.Kind
 import Syntax.Module
 import Syntax.Class
 import Location
@@ -31,3 +32,4 @@ verifyModule :: Module -> Verify ()
 verifyModule
 	= verifyModuleClassesUnique
 	>.> verifyModuleClasses
+	>.> verifyModuleKind
