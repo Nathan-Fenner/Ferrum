@@ -5,6 +5,7 @@ import Verify
 import Syntax.Kind
 import Syntax.Type
 import Syntax.Statement
+import Syntax.Member
 import Syntax.Class
 import Syntax.Module
 import Location
@@ -57,3 +58,14 @@ verifyStatementKind known statement' = case statement of
 
 verifyBlockKind :: [(String,Kind)] -> [Statement] -> Verify ()
 verifyBlockKind known = mapM_ (verifyStatementKind known)
+
+verifyMemberKind :: [(String, Kind)] -> Member -> Verify ()
+verifyMemberKind known member = case memberValue member of
+	Field { fieldType = declared } -> verifyTypeConcrete known declared
+	Method { methodReturnType = returnType, methodArguments = arguments, methodBody = body } -> do
+		verifyTypeConcrete known returnType
+		mapM_ (verifyTypeConcrete known . fst) arguments
+		verifyBlockKind known body
+	Constructor { constructorArguments = arguments, constructorBody = body } -> do
+		mapM_ (verifyTypeConcrete known . fst) arguments
+		verifyBlockKind known body
