@@ -89,3 +89,5 @@ unifyAtomicNonatomicTypes unifies a' n
 unifyTypes :: [(String, Type)] -> Type -> Type -> Maybe [(String, Type)]
 unifyTypes unifies a b
 	|atomic a && atomic b = unifyAtomicTypes unifies (typeName a) (typeName b)
+	|atomic a && not (atomic b) = unifyAtomicNonatomicTypes unifies (typeName a) b
+	|not (atomic a) && atomic b = unifyAtomicNonatomicTypes unifies (typeName b) a
