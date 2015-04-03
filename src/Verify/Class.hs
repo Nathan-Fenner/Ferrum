@@ -82,9 +82,9 @@ unifyAtomicNonatomicTypes unifies a' n
 	|head a == '#' = case fromUnifies unifies a of
 		Nothing -> Just $ (a, n) : unifies
 		Just other -> unifyTypes unifies other n
+	|otherwise = Nothing -- can't possibly match, since some additional structure exists in 'n'
 	where
 	a = value a'
-
 
 unifyTypes :: [(String, Type)] -> Type -> Type -> Maybe [(String, Type)]
 unifyTypes unifies a b
