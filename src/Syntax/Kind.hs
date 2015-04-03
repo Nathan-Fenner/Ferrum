@@ -24,3 +24,7 @@ niceKind :: Kind -> String
 niceKind Concrete = "#"
 niceKind (Arrow Concrete right)  = "# -> " ++ niceKind right
 niceKind (Arrow left right) = "(" ++ niceKind left ++ ") -> " ++ niceKind right
+
+uncurryKind :: Kind -> ([Kind], Kind)
+uncurryKind Concrete = ([], Concrete)
+uncurryKind (Arrow left right) = let (args, result) = uncurryKind right in (left : args, result)

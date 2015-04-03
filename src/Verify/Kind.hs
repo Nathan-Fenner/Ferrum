@@ -69,3 +69,9 @@ verifyMemberKind known member = case memberValue member of
 	Constructor { constructorArguments = arguments, constructorBody = body } -> do
 		mapM_ (verifyTypeConcrete known . fst) arguments
 		verifyBlockKind known body
+
+verifyClassKind :: [(String, Kind)] -> Class -> Verify ()
+verifyClassKind known c@(Class { classMembers = members, classGeneric = generics }) = do
+	let genericKinds = zipWith (,) (map value generics) (fst $ uncurryKind $ kindOfClass c)
+	let totalList = genericKinds ++ known
+	mapM_ (verifyMemberKind totalList) members
