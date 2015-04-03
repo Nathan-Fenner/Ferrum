@@ -28,6 +28,16 @@ module ExampleProgram {
 		}
 	}
 
+	class Fixer[#t] :: (# -> #) -> # {
+		public field Maybe[#t[Fixer[#t]]] : thing;
+		public constructor( #t[Fixer[#t]] : existing ) retains existing in this.thing {
+			thing = Just(existing);
+		}
+		public constructor( ) {
+			thing = Nothing();
+		}
+	}
+
 	
 
 
