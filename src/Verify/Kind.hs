@@ -45,3 +45,8 @@ kindOfType known (Type n args) = do
 			argKind <- kindOfType known (last args)
 			assert (left == argKind) $ Locate (typeAt $ last args) $ Message $ "Type argument `" ++ show (last args) ++ "` to type `" ++ (value n) ++ "` at " ++ displayLocation (at n) ++ " has incorrect kind; expected " ++ niceKind left ++ " but got " ++ niceKind argKind
 			return right
+
+verifyTypeConcrete :: [(String, Kind)] -> Type -> Verify ()
+verifyTypeConcrete known t = do
+	k <- kindOfType known t
+	assert (k == Concrete) $ Locate (typeAt t) $ Message $ "Type expression `" ++ show t ++ "` is expected to be concrete (#) but actually has kind `" ++ niceKind k ++ "`"
