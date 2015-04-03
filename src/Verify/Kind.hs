@@ -18,7 +18,7 @@ simpleClassKindCheck :: Class -> Verify ()
 simpleClassKindCheck c = case
 	kindArity (kindOfClass c) == length (classGeneric c) of
 		True -> return ()
-		False -> Left $ Locate (at $ className c) $ Message $ "class `" ++ value (className c) ++ "` has incompatible kind `(" ++ niceKind (kindOfClass c) ++ ")` with its number of formal parameters (" ++ (show $ length $ classGeneric c) ++ ") which would predict a kind of the form `(" ++ (exampleKind $ length $ classGeneric c) ++ ")`"
+		False -> Left $ Locate (at $ className c) $ Message $ "class `" ++ value (className c) ++ "` has incompatible kind-arity `(" ++ niceKind (kindOfClass c) ++ ")` with its number of formal parameters (" ++ (show $ length $ classGeneric c) ++ ") which would predict a kind of the form `(" ++ (exampleKind $ length $ classGeneric c) ++ ")`"
 
 simpleModuleKindCheck :: Module -> Verify ()
 simpleModuleKindCheck (Module _ classes) = mapM_ simpleClassKindCheck classes
