@@ -31,7 +31,8 @@ data MemberValue
 		, methodBody :: [Statement]
 		}
 	| Constructor
-		{ constructorArguments :: [(Type, Name)]
+		{ startLocation :: Location
+		, constructorArguments :: [(Type, Name)]
 		, constructorEffects :: [Effect]
 		, constructorBody :: [Statement]
 		}

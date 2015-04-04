@@ -115,5 +115,5 @@ parseConstructor = do
 	arguments <- parseArguments
 	effects <- parseEffectsUntil (checkNext (TSpecial "{"))
 	body <- parseBody $ Message $ "expected function body for constructor at " ++ displayLocation constructorAt
-	return $ Constructor arguments effects body
+	return $ Constructor constructorAt arguments effects body
 
