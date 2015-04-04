@@ -3,6 +3,7 @@ module Verify.Class where
 
 import Message
 import Syntax.Class
+import Syntax.Member
 import Syntax.Type
 import Verify
 import Location
@@ -34,11 +35,33 @@ verifyClassGenericArgumentsUnique given = unique $ classGeneric given where
 		|value n `elem` map value ns = Left $ Locate (at n) $ Message $ "generic argument `" ++ (value n) ++ "` is not unique"
 		|otherwise = unique ns
 
+verifyMethodsUnique :: Class -> Verify ()
+verifyMethodsUnique c = mapM_ testPair methodPairs where
+	uniquePairs :: [a] -> [(a,a)]
+	uniquePairs [] = []
+	uniquePairs (x:xs) = map ((,) x) xs ++ uniquePairs xs
+	methodPairs :: [((Name, [(Type, Name)]),(Name, [(Type, Name)]))]
+	methodPairs = uniquePairs $ onlyMethods $ classMembers c
+	onlyMethods :: [Member] -> [(Name, [(Type, Name)])]
+	onlyMethods [] = []
+	onlyMethods (m : ms) = case memberValue m of
+		Method { methodName = name, methodArguments = arguments } -> (name, arguments) : onlyMethods ms
+		_ -> onlyMethods ms
+
+	testPair ((nameA, argsA),(nameB, argsB))
+		|value nameA /= value nameB = return ()
+		|otherwise = case unifyMethodArguments argsA argsB of
+			Nothing -> return ()
+			Just values -> Left $ Locate (at nameB) $ Message $
+				"illegal class definition. method `" ++ value nameA ++ "` is ambiguous, from definitions at " ++ displayLocation (at nameA) ++ " and " ++ displayLocation (at nameB) ++ ". Ambiguous case occurs when " ++ show values
+
+
 verifyClass :: Class -> Verify ()
 verifyClass
 	= verifyClassName
 	>.> verifyClassGenericArgumentsHash
 	>.> verifyClassGenericArgumentsUnique
+	>.> verifyMethodsUnique
 	>.> const (return ())
 
 
