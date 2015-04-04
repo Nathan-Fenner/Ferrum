@@ -103,3 +103,10 @@ unifyTogether left [] = Just left
 unifyTogether left (first@(firstName, firstType) : right) = case fromUnifies left firstName of
 	Nothing -> unifyTogether (first : left) right
 	Just thing -> unifyTypes left thing firstType >>= flip unifyTogether right
+
+unifyMany :: [[(String, Type)]] -> Maybe [(String, Type)]
+unifyMany list = go [] list where
+	go x [] = Just x
+	go x (y:ys) = do
+		r <- unifyTogether x y
+		go r ys
