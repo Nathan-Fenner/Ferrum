@@ -97,3 +97,9 @@ unifyTypes unifies a b
 	lastB = last $ typeArguments b
 	shortA = Type (typeName a) (init $ typeArguments a)
 	shortB = Type (typeName b) (init $ typeArguments b)
+
+unifyTogether :: [(String, Type)] -> [(String, Type)] -> Maybe [(String, Type)]
+unifyTogether left [] = Just left
+unifyTogether left (first@(firstName, firstType) : right) = case fromUnifies left firstName of
+	Nothing -> unifyTogether (first : left) right
+	Just thing -> unifyTypes left thing firstType >>= flip unifyTogether right
