@@ -36,7 +36,7 @@ verifyClassGenericArgumentsUnique given = unique $ classGeneric given where
 		|otherwise = unique ns
 
 verifyMethodsUnique :: Class -> Verify ()
-verifyMethodsUnique c = mapM_ testPair methodPairs where
+verifyMethodsUnique c = mapM_ testPairMethod methodPairs >> mapM_ testPairConstructor constructorPairs where
 	uniquePairs :: [a] -> [(a,a)]
 	uniquePairs [] = []
 	uniquePairs (x:xs) = map ((,) x) xs ++ uniquePairs xs
@@ -47,13 +47,29 @@ verifyMethodsUnique c = mapM_ testPair methodPairs where
 	onlyMethods (m : ms) = case memberValue m of
 		Method { methodName = name, methodArguments = arguments } -> (name, arguments) : onlyMethods ms
 		_ -> onlyMethods ms
+	onlyConstructors :: [Member] -> [(Location,[(Type, Name)])]
+	onlyConstructors [] = []
+	onlyConstructors (con : cs) = case memberValue con of
+		Constructor { startLocation = location, constructorArguments = arguments } -> (location, arguments) : onlyConstructors cs
+		_ -> onlyConstructors cs
+	constructorPairs :: [((Location, [(Type, Name)]), (Location, [(Type, Name)]))]
+	constructorPairs = uniquePairs $ onlyConstructors $ classMembers c
 
-	testPair ((nameA, argsA),(nameB, argsB))
+	testPairConstructor ((locA, argsA), (locB, argsB)) = case unifyMethodArguments argsA argsB of
+		Nothing -> return ()
+		Just values -> Left $ Locate locB $ Message $
+			"illegal class definition. constructors are ambiguous, from definitions at " ++ displayLocation locA ++ " and " ++ displayLocation locB ++ ". " ++ (concatKeys $ map (\(v, t) -> "\n" ++ v ++ " = " ++ prettyType t) values)
+
+
+	testPairMethod ((nameA, argsA),(nameB, argsB))
 		|value nameA /= value nameB = return ()
 		|otherwise = case unifyMethodArguments argsA argsB of
 			Nothing -> return ()
 			Just values -> Left $ Locate (at nameB) $ Message $
-				"illegal class definition. method `" ++ value nameA ++ "` is ambiguous, from definitions at " ++ displayLocation (at nameA) ++ " and " ++ displayLocation (at nameB) ++ ". Ambiguous case occurs when " ++ show values
+				"illegal class definition. method `" ++ value nameA ++ "` is ambiguous, from definitions at " ++ displayLocation (at nameA) ++ " and " ++ displayLocation (at nameB) ++ ". " ++ (concatKeys $  map (\(v,t) -> "\n" ++ v ++ " = " ++ prettyType t) values)
+	
+	concatKeys [] = "Ambiguous case occurs from identical argument signature"
+	concatKeys x = "Ambiguous case occurs when " ++ concat x
 
 
 verifyClass :: Class -> Verify ()
