@@ -110,3 +110,8 @@ unifyMany list = go [] list where
 	go x (y:ys) = do
 		r <- unifyTogether x y
 		go r ys
+
+unifyMethodArguments :: [(Type, Name)] -> [(Type, Name)] -> Maybe [(String, Type)]
+unifyMethodArguments left right
+	| length left /= length right = Nothing
+	| otherwise = sequence (zipWith (unifyTypes []) (map fst left) (map fst right)) >>= unifyMany
