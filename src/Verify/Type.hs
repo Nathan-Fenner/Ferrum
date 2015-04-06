@@ -83,6 +83,5 @@ typeCheckExpression classes mine scope e = case value e of
 	| Prefix Name Expression
 	| Call Expression [Expression]
 	| Index Expression Expression
-	| Dot Expression Name
 -}
 
