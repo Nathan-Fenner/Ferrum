@@ -12,7 +12,14 @@ import Syntax.Expression
 import Location
 
 relabelType :: [(Name, Name)] -> Type -> Type
-relabelType = undefined
+relabelType rules (Type name args) = case select (\(l,_) -> value l == value name) rules of
+	Nothing -> Type name (map (relabelType rules) args)
+	Just (_, r) -> Type r (map (relabelType rules) args)
+	where
+	select _ [] = Nothing
+	select f (a : z)
+		|f a = Just a
+		|otherwise = select f z
 
 typeCheckModule :: Module -> Verify ()
 typeCheckModule m = mapM_ (typeCheckClass $ modClasses m) $ modClasses m
