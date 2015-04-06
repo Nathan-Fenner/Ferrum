@@ -11,13 +11,8 @@ import Syntax.Statement
 import Syntax.Expression
 import Location
 
-relabelType :: String -> String -> Type -> Type
-relabelType from to given = Type
-		(if from == value givenName then newName else givenName)
-		(map (relabelType from to) $ typeArguments given)
-	where
-	newName = Locate (at givenName) to
-	givenName = typeName $ given
+relabelType :: [(Name, Name)] -> Type -> Type
+relabelType = undefined
 
 typeCheckModule :: Module -> Verify ()
 typeCheckModule m = mapM_ (typeCheckClass $ modClasses m) $ modClasses m
@@ -67,7 +62,7 @@ typeCheckExpression classes mine scope e = case value e of
 			[] -> Left $ Locate loc $ Message $ "no ability to access member of type `" ++ value leftName ++ "`. This class may be internal and unindexable."
 			[c] -> case findFieldType c name (classMembers c) of
 				Nothing -> Left $ Locate loc $ Message $ "no access to field `" ++ value name ++ "` of class of type `" ++ value (className c) ++ "`. It may be private or non-existent."
-				Just t -> return t
+				Just t -> return $ relabelType (zipWith (,) (classGeneric c) (map typeName $ genericArgs) ) t
 			_ -> error "verification is violating consistency of class table"
 	where
 	findFieldType within name [] = Nothing
