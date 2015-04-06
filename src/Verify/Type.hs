@@ -8,6 +8,7 @@ import Syntax.Module
 import Syntax.Class
 import Syntax.Member
 import Syntax.Statement
+import Syntax.Expression
 import Location
 
 relabelType :: String -> String -> Type -> Type
@@ -49,7 +50,9 @@ typeCheckBody _classes mine returnType name _scope [] = Left $ Locate (at name) 
 typeCheckBody _classes mine _ name _scope (Locate loc (Return _) : _ : _) = Left $ Locate loc $ Message $ "code continues after explicit `return` in method `" ++ value name ++ " defined at " ++ displayLocation (at name) ++ " in class `" ++ (value . className $ mine) ++ "`"
 typeCheckBody _classes _mine (Type (Locate _ "Void") []) _name _scope [Locate _ (Return Nothing)] = return ()
 typeCheckBody _classes mine (Type (Locate _ "Void") []) name _scope [Locate _ (Return (Just r))] = Left $ Locate (at r) $ Message $ "method `" ++ value name ++ "` in class `" ++ (value . className $ mine) ++ "` is of type Void but returns a value"
+
 typeCheckBody _ _ _ _ _ _ = undefined
 
-
+typeCheckExpression :: [Class] -> [(Type, Name)] -> Expression -> Verify Type
+typeCheckExpression = undefined
 
