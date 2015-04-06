@@ -1,6 +1,7 @@
 
 module Verify.Type where
 
+import Message
 import Verify
 import Syntax.Type
 import Syntax.Module
@@ -24,25 +25,28 @@ typeCheckClass :: [Class] -> Class -> Verify ()
 typeCheckClass classes c = mapM_ (typeCheckMember classes c) (classMembers c)
 
 typeCheckMember :: [Class] -> Class -> Member -> Verify ()
-typeCheckMember classes mine Member{memberVisibility = visibility, memberValue = member} = typeCheckMemberValue classes mine visibility member
+typeCheckMember classes mine Member{memberValue = member} = typeCheckMemberValue classes mine member
 
-typeCheckMemberValue :: [Class] -> Class -> Visibility -> MemberValue -> Verify ()
-typeCheckMemberValue classes mine visibility (Method
+typeCheckMemberValue :: [Class] -> Class -> MemberValue -> Verify ()
+typeCheckMemberValue classes mine (Method
 		{ methodReturnType = returnType
 		, methodName = name
 		, methodArguments = arguments
 		, methodBody = body
-		}) = typeCheckBody classes mine visibility returnType name (thisType : arguments) body
+		}) = typeCheckBody classes mine returnType name (thisType : arguments) body
 		where
 		generics = classGeneric mine
 		mineType = Type (className mine) $ map (flip Type []) generics
 		thisType = (mineType, Locate (Special "this") "this")
 
-typeCheckMemberValue _classes _mine _visibility _ = return ()
+typeCheckMemberValue _classes _mine _ = return ()
 -- fields need no checking yet, since they cannot be initialized
 
-typeCheckBody :: [Class] -> Class -> Visibility -> Type -> Name -> [(Type, Name)] -> [Statement] -> Verify ()
-typeCheckBody = undefined
+typeCheckBody :: [Class] -> Class -> Type -> Name -> [(Type, Name)] -> [Statement] -> Verify ()
+-- if there are no statements, we require the returnType given is Void
+typeCheckBody _classes _mine (Type (Locate _ "Void") []) _name _scope [] = return ()
+typeCheckBody _classes mine returnType name _scope [] = Left $ Locate (at name) $ Message $ "Method `" ++ value name ++ "` of class `" ++ (value . className $ mine) ++ "` must return type " ++ show returnType ++ " but reaches the end of its body without a return."
+typeCheckBody _ _ _ _ _ _ = undefined
 
 
 
