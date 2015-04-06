@@ -59,5 +59,13 @@ typeCheckExpression classes scope e = case value e of
 		[] -> Left $ Locate (at e) $ Message $ "no reference to name `" ++ name ++ "`. It may be out-of-scope or misspelled"
 		[(t, _)] -> return t
 		_ -> error "verification is violating consistency of scope table"
-
+{-
+	| LiteralInt Int
+	| LiteralString String
+	| Operator Expression Name Expression
+	| Prefix Name Expression
+	| Call Expression [Expression]
+	| Index Expression Expression
+	| Dot Expression Name
+-}
 
