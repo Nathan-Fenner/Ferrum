@@ -65,14 +65,16 @@ typeCheckExpression classes mine scope e = case value e of
 		Type leftName genericArgs <- typeCheckExpression classes mine scope left
 		case filter (\c -> value (className c) == value leftName) classes of
 			[] -> Left $ Locate loc $ Message $ "no ability to access member of type `" ++ value leftName ++ "`. This class may be internal and unindexable."
-			[c] -> case fieldTake name (classMembers c) of
+			[c] -> case findFieldType c name (classMembers c) of
 				Nothing -> undefined
 				Just _ -> undefined
 			_ -> error "verification is violating consistency of class table"
 	where
-	fieldTake name [] = Nothing
-	fieldTake name (m : _) = undefined
-	fieldTake name (_ : ms) = fieldTake name ms
+	findFieldType within name [] = Nothing
+	findFieldType within name (m : ms) = case Public == memberVisibility m || value (className within) == value (className mine) of
+		True -> case memberValue m of
+			Field { fieldName = n, fieldType = t } -> if value n == value name then Just t else findFieldType within name ms
+		False -> findFieldType within name ms
 	loc = at e
 {-
 	| Operator Expression Name Expression

@@ -11,7 +11,7 @@ data Visibility
 	= Public
 	| Private
 	| Protected
-	deriving Show
+	deriving (Show, Eq)
 
 data Member = Member {memberVisibility :: Visibility, memberValue :: MemberValue}
 	deriving Show
