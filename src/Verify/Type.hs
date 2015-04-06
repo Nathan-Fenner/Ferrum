@@ -46,6 +46,7 @@ typeCheckBody :: [Class] -> Class -> Type -> Name -> [(Type, Name)] -> [Statemen
 -- if there are no statements, we require the returnType given is Void
 typeCheckBody _classes _mine (Type (Locate _ "Void") []) _name _scope [] = return ()
 typeCheckBody _classes mine returnType name _scope [] = Left $ Locate (at name) $ Message $ "Method `" ++ value name ++ "` of class `" ++ (value . className $ mine) ++ "` must return type " ++ show returnType ++ " but reaches the end of its body without a return."
+typeCheckBody _classes mine _ name _scope (Locate loc (Return _) : _ : _) = Left $ Locate loc $ Message $ "code continues after explicit `return` in method `" ++ value name ++ " defined at " ++ displayLocation (at name) ++ " in class `" ++ (value . className $ mine) ++ "`"
 typeCheckBody _classes _mine (Type (Locate _ "Void") []) _name _scope [Locate _ (Return Nothing)] = return ()
 typeCheckBody _ _ _ _ _ _ = undefined
 
