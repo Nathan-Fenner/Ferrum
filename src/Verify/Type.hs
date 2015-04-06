@@ -67,7 +67,7 @@ typeCheckExpression classes mine scope e = case value e of
 			[] -> Left $ Locate loc $ Message $ "no ability to access member of type `" ++ value leftName ++ "`. This class may be internal and unindexable."
 			[c] -> case findFieldType c name (classMembers c) of
 				Nothing -> Left $ Locate loc $ Message $ "no access to field `" ++ value name ++ "` of class of type `" ++ value (className c) ++ "`. It may be private or non-existent."
-				Just _ -> undefined
+				Just t -> return t
 			_ -> error "verification is violating consistency of class table"
 	where
 	findFieldType within name [] = Nothing
