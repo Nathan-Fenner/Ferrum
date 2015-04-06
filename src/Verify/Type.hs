@@ -64,8 +64,6 @@ typeCheckExpression classes scope e = case value e of
 	where
 	loc = at e
 {-
-	| LiteralInt Int
-	| LiteralString String
 	| Operator Expression Name Expression
 	| Prefix Name Expression
 	| Call Expression [Expression]
