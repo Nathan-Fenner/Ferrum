@@ -71,6 +71,8 @@ typeCheckExpression classes mine scope e = case value e of
 				Nothing -> Left $ Locate loc $ Message $ "no access to field `" ++ value name ++ "` of class of type `" ++ value (className c) ++ "`. It may be private or non-existent."
 				Just t -> return $ relabelType (zipWith (,) (classGeneric c) (map typeName $ genericArgs) ) t
 			_ -> error "verification is violating consistency of class table"
+	Call (Locate _ (Dot left name)) args -> undefined
+	Call (Locate _ fun) args -> undefined
 	where
 	findFieldType within name [] = Nothing
 	findFieldType within name (m : ms) = case Public == memberVisibility m || value (className within) == value (className mine) of
@@ -81,7 +83,6 @@ typeCheckExpression classes mine scope e = case value e of
 {-
 	| Operator Expression Name Expression
 	| Prefix Name Expression
-	| Call Expression [Expression]
 	| Index Expression Expression
 -}
 
