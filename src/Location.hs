@@ -1,6 +1,6 @@
 module Location where
 
-data Location = Location (FilePath, Int, Int) | End FilePath deriving (Show, Eq)
+data Location = Location (FilePath, Int, Int) | End FilePath | Special String deriving (Show, Eq)
 
 data Locate a = Locate { at :: Location, value :: a } deriving Show
 
