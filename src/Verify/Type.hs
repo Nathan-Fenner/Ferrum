@@ -23,5 +23,8 @@ typeCheckClass :: [Class] -> Class -> Verify ()
 typeCheckClass classes c = mapM_ (typeCheckMember classes) (classMembers c)
 
 typeCheckMember :: [Class] -> Member -> Verify ()
-typeCheckMember = undefined
+typeCheckMember classes Member{memberVisibility = visibility, memberValue = member} = typeCheckMemberValue classes visibility member
+
+typeCheckMemberValue :: [Class] -> Visibility -> MemberValue -> Verify ()
+typeCheckMemberValue = undefined
 
