@@ -53,15 +53,26 @@ typeCheckBody _classes mine (Type (Locate _ "Void") []) name _scope [Locate _ (R
 
 typeCheckBody _ _ _ _ _ _ = undefined
 
-typeCheckExpression :: [Class] -> [(Type, Name)] -> Expression -> Verify Type
-typeCheckExpression classes scope e = case value e of
+typeCheckExpression :: [Class] -> Class -> [(Type, Name)] -> Expression -> Verify Type
+typeCheckExpression classes mine scope e = case value e of
 	Name name -> case filter (\(_, n) -> value n == name) scope of
 		[] -> Left $ Locate loc $ Message $ "no reference to name `" ++ name ++ "`. It may be out-of-scope or misspelled"
 		[(t, _)] -> return t
 		_ -> error "verification is violating consistency of scope table"
 	LiteralInt _ -> return $ Type (Locate loc "Int") []
 	LiteralString _ -> return $ Type (Locate loc "String") []
+	Dot left name -> do
+		Type leftName genericArgs <- typeCheckExpression classes mine scope left
+		case filter (\c -> value (className c) == value leftName) classes of
+			[] -> Left $ Locate loc $ Message $ "no ability to access member of type `" ++ value leftName ++ "`. This class may be internal and unindexable."
+			[c] -> case fieldTake name (classMembers c) of
+				Nothing -> undefined
+				Just _ -> undefined
+			_ -> error "verification is violating consistency of class table"
 	where
+	fieldTake name [] = Nothing
+	fieldTake name (m : _) = undefined
+	fieldTake name (_ : ms) = fieldTake name ms
 	loc = at e
 {-
 	| Operator Expression Name Expression
