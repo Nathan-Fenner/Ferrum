@@ -35,13 +35,13 @@ environValue (_, _, _, a) = a
 environClasses :: Environ a -> [Class]
 environClasses (a, _, _, _) = a
 
-environClassGet :: Environ a -> String -> Maybe Class
-environClassGet e n = select (\c -> if value (className c) == n then Just c else Nothing) $ environClasses e
+environClassGet :: String -> Environ a -> Maybe Class
+environClassGet n e = select (\c -> if value (className c) == n then Just c else Nothing) $ environClasses e
 
 -- the environment, the type of the object to index, the name of the field, returns the type (if it exists)
-environFieldGet :: Environ a -> Type -> String -> Maybe Type
-environFieldGet environ (Type name classArgs) field = do
-	objectType <- environClassGet environ (value name)
+environFieldGet :: Type -> String -> Environ a -> Maybe Type
+environFieldGet (Type name classArgs) field environ = do
+	objectType <- environClassGet (value name) environ
 	fieldMember <- select checkMember $ classMembers objectType
 	return $ relabelType (zipWith (,) (classGeneric objectType) classArgs) fieldMember
 	where
