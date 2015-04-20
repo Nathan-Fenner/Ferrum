@@ -8,7 +8,7 @@ import Syntax.Type
 import Syntax.Class
 import Syntax.Member
 --import Syntax.Statement
---import Syntax.Expression
+import Syntax.Expression
 import Location
 
 select :: (a -> Maybe b) -> [a] -> Maybe b
@@ -67,3 +67,7 @@ environMethodGet (Type objectClass classArgs) method methodArgs environ = do
 			= Just $ fixType classType returnType
 	checkMember _ _ = Nothing
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
+
+-- "this" type, expression to get, environ
+environExpressionType :: Type -> Expression -> Environ a -> Maybe Type
+environExpressionType = undefined
