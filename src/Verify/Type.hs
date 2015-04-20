@@ -49,3 +49,21 @@ environFieldGet (Type name classArgs) field environ = do
 	checkMemberValue (Field { fieldName = n, fieldType = t })
 		|value n == field = Just t
 	checkMemberValue _ = Nothing
+
+typeEqual :: Type -> Type -> Bool
+typeEqual (Type n a) (Type n' a') = value n == value n' && length a == length a' && all (uncurry typeEqual) (zipWith (,) a a')
+
+-- object index type, method name, argument types, environ
+environMethodGet :: Type -> String -> [Type] -> Environ a -> Maybe Type
+environMethodGet (Type objectClass classArgs) method methodArgs environ = do
+	classType <- environClassGet (value objectClass) environ
+	-- the class type for our instance
+	-- now we need to select its methods named `method`
+	methodType <- select (checkMember classType) $ map memberValue $ classMembers classType
+	return methodType
+	where
+	checkMember classType Method{ methodReturnType = returnType, methodName = name, methodArguments = args }
+		|value name == method && all (uncurry typeEqual) (zipWith (,) methodArgs $ map (fixType classType . fst) args)
+			= Just $ fixType classType returnType
+	checkMember _ _ = Nothing
+	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
