@@ -29,6 +29,13 @@ relabelType generics (Type name args) = lookUp name `applyArguments` map (relabe
 	applyArguments (Type n a) more = Type n (a ++ more)
 
 type Environ a = ([Class], Class, [(Type, Name)], a)
+
+environGetType :: Name -> Environ a -> Maybe Type
+environGetType n (_, _, vs, _) = select (\(t, n') -> if value n' == value n then Just t else Nothing) vs
+
+environSetType :: Type -> Name -> Environ a -> Environ a
+environSetType t n (a, b, vs, c) = (a, b, (t,n) : vs, c)
+
 environValue :: Environ a -> a
 environValue (_, _, _, a) = a
 
