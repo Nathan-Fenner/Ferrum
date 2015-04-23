@@ -28,7 +28,7 @@ relabelType generics (Type name args) = lookUp name `applyArguments` map (relabe
 	applyArguments :: Type -> [Type] -> Type
 	applyArguments (Type n a) more = Type n (a ++ more)
 
-type Environ a = ([Class], Class, [(Type, Name)], a)
+type Environ a = ([Class], Type, [(Type, Name)], a)
 
 environGetType :: String -> Environ a -> Maybe Type
 environGetType n (_, _, vs, _) = select (\(t, n') -> if value n' == n then Just t else Nothing) vs
@@ -42,6 +42,9 @@ environRemoveType n (a, b, vs, c) = (a, b, dropFirst vs, c) where
 	dropFirst ((t, n') : z)
 		|value n == value n' = z
 		|otherwise = (t, n') : dropFirst z
+
+environMyClass :: Environ a -> Type
+environMyClass (_, c, _, _) = c
 
 environValue :: Environ a -> a
 environValue (_, _, _, a) = a
@@ -83,11 +86,13 @@ environMethodGet (Type objectClass classArgs) method methodArgs environ = do
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
 
 -- "this" type, expression to get, environ
-environExpressionType :: Type -> Expression -> Environ a -> Maybe Type
-environExpressionType myClass expr env = case value expr of
+environExpressionType :: Expression -> Environ a -> Maybe Type
+environExpressionType expr env = case value expr of
 	Name str -> environGetType str env
 	LiteralInt _ -> Just (Type (Locate (at expr) "Int") [])
 	LiteralString _ -> Just (Type (Locate (at expr) "String") [])
 	Call (Locate {value = Dot left name}) args -> undefined -- method call
-	Dot left name -> undefined -- field access
+	Dot left name -> do
+		leftType <- environExpressionType left env
+		environFieldGet leftType (value name) env -- field access
 	_ -> undefined
