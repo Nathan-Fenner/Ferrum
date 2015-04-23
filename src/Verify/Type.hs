@@ -91,8 +91,11 @@ environExpressionType expr env = case value expr of
 	Name str -> environGetType str env
 	LiteralInt _ -> Just (Type (Locate (at expr) "Int") [])
 	LiteralString _ -> Just (Type (Locate (at expr) "String") [])
-	Call (Locate {value = Dot left name}) args -> undefined -- method call
-	Dot left name -> do
+	Call (Locate {value = Dot left name}) args -> do -- method call
+		leftType <- environExpressionType left env
+		argTypes <- mapM (flip environExpressionType env) args
+		environMethodGet leftType (value name) argTypes env -- method access
+	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
 		environFieldGet leftType (value name) env -- field access
 	_ -> undefined
