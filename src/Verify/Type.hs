@@ -86,4 +86,8 @@ environMethodGet (Type objectClass classArgs) method methodArgs environ = do
 environExpressionType :: Type -> Expression -> Environ a -> Maybe Type
 environExpressionType myClass expr env = case value expr of
 	Name str -> environGetType str env
+	LiteralInt _ -> Just (Type (Locate (at expr) "Int") [])
+	LiteralString _ -> Just (Type (Locate (at expr) "String") [])
+	Call (Locate {value = Dot left name}) args -> undefined -- method call
+	Dot left name -> undefined -- field access
 	_ -> undefined
