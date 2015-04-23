@@ -36,6 +36,13 @@ environGetType n (_, _, vs, _) = select (\(t, n') -> if value n' == value n then
 environSetType :: Type -> Name -> Environ a -> Environ a
 environSetType t n (a, b, vs, c) = (a, b, (t,n) : vs, c)
 
+environRemoveType :: Name -> Environ a -> Environ a
+environRemoveType n (a, b, vs, c) = (a, b, dropFirst vs, c) where
+	dropFirst [] = error "attempt to remove thing that's not defined"
+	dropFirst ((t, n') : z)
+		|value n == value n' = z
+		|otherwise = (t, n') : dropFirst z
+
 environValue :: Environ a -> a
 environValue (_, _, _, a) = a
 
