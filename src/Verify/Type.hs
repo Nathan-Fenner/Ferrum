@@ -1,8 +1,8 @@
 
 module Verify.Type where
 
---import Message
---import Verify
+import Message
+import Verify
 import Syntax.Type
 --import Syntax.Module
 import Syntax.Class
@@ -30,8 +30,10 @@ relabelType generics (Type name args) = lookUp name `applyArguments` map (relabe
 
 type Environ a = ([Class], Type, [(Type, Name)], a)
 
-environGetType :: String -> Environ a -> Maybe Type
-environGetType n (_, _, vs, _) = select (\(t, n') -> if value n' == n then Just t else Nothing) vs
+environGetType :: Name -> Environ a -> Verify Type
+environGetType n (_, _, vs, _) = case select (\(t, n') -> if value n' == value n then Just t else Nothing) vs of
+	Just t -> return t
+	Nothing -> Left $ Locate (at n) $ Message $ "Attempt to refer to name `" ++ value n ++ "` which is not in scope"
 
 environSetType :: Type -> Name -> Environ a -> Environ a
 environSetType t n (a, b, vs, c) = (a, b, (t,n) : vs, c)
@@ -52,50 +54,58 @@ environValue (_, _, _, a) = a
 environClasses :: Environ a -> [Class]
 environClasses (a, _, _, _) = a
 
-environClassGet :: String -> Environ a -> Maybe Class
-environClassGet n e = select (\c -> if value (className c) == n then Just c else Nothing) $ environClasses e
+environClassGet :: Name -> Environ a -> Verify Class
+environClassGet n e = case select (\c -> if value (className c) == value n then Just c else Nothing) $ environClasses e of
+	Just t -> return t
+	Nothing -> Left $ Locate (at n) $ Message $ "attempt to refer to classname `" ++ value n ++ "` which is not in scope"
 
 -- the environment, the type of the object to index, the name of the field, returns the type (if it exists)
-environFieldGet :: Type -> String -> Environ a -> Maybe Type
+environFieldGet :: Type -> Name -> Environ a -> Verify Type
 environFieldGet (Type name classArgs) field environ = do
-	objectType <- environClassGet (value name) environ
-	fieldMember <- select checkMember $ classMembers objectType
-	return $ relabelType (zipWith (,) (classGeneric objectType) classArgs) fieldMember
+	objectType <- environClassGet name environ
+	case do
+		fieldMember <- select checkMember $ classMembers objectType
+		return $ relabelType (zipWith (,) (classGeneric objectType) classArgs) fieldMember
+		of
+		Just t -> return t
+		Nothing -> Left $ Locate (at field) $ Message $ "attempt to access field `" ++ value field ++ "` which doesn't exist in object of class type `" ++ value name ++ "`"
 	where
 	checkMember m = checkMemberValue (memberValue m)
 	checkMemberValue (Field { fieldName = n, fieldType = t })
-		|value n == field = Just t
+		|value n == value field = Just t
 	checkMemberValue _ = Nothing
 
 typeEqual :: Type -> Type -> Bool
 typeEqual (Type n a) (Type n' a') = value n == value n' && length a == length a' && all (uncurry typeEqual) (zipWith (,) a a')
 
 -- object index type, method name, argument types, environ
-environMethodGet :: Type -> String -> [Type] -> Environ a -> Maybe Type
+environMethodGet :: Type -> Name -> [Type] -> Environ a -> Verify Type
 environMethodGet (Type objectClass classArgs) method methodArgs environ = do
-	classType <- environClassGet (value objectClass) environ
+	classType <- environClassGet objectClass environ
 	-- the class type for our instance
 	-- now we need to select its methods named `method`
-	methodType <- select (checkMember classType) $ map memberValue $ classMembers classType
-	return methodType
+	case select (checkMember classType) $ map memberValue $ classMembers classType of
+		Just t -> return t
+		Nothing -> Left $ Locate (at method) $ Message $ "Attempt to call non-existent method `" ++ value method ++ "` with arguments of types < ... TODO >"
+	
 	where
 	checkMember classType Method{ methodReturnType = returnType, methodName = name, methodArguments = args }
-		|value name == method && all (uncurry typeEqual) (zipWith (,) methodArgs $ map (fixType classType . fst) args)
+		|value name == value method && all (uncurry typeEqual) (zipWith (,) methodArgs $ map (fixType classType . fst) args)
 			= Just $ fixType classType returnType
 	checkMember _ _ = Nothing
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
 
 -- "this" type, expression to get, environ
-environExpressionType :: Expression -> Environ a -> Maybe Type
+environExpressionType :: Expression -> Environ a -> Verify Type
 environExpressionType expr env = case value expr of
-	Name str -> environGetType str env
-	LiteralInt _ -> Just (Type (Locate (at expr) "Int") [])
-	LiteralString _ -> Just (Type (Locate (at expr) "String") [])
+	Name str -> environGetType (Locate (at expr) str) env
+	LiteralInt _ -> return (Type (Locate (at expr) "Int") [])
+	LiteralString _ -> return (Type (Locate (at expr) "String") [])
 	Call (Locate {value = Dot left name}) args -> do -- method call
 		leftType <- environExpressionType left env
 		argTypes <- mapM (flip environExpressionType env) args
-		environMethodGet leftType (value name) argTypes env -- method access
+		environMethodGet leftType name argTypes env -- method access
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
-		environFieldGet leftType (value name) env -- field access
+		environFieldGet leftType name env -- field access
 	_ -> undefined
