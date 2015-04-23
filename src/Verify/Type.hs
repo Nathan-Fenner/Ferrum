@@ -30,8 +30,8 @@ relabelType generics (Type name args) = lookUp name `applyArguments` map (relabe
 
 type Environ a = ([Class], Class, [(Type, Name)], a)
 
-environGetType :: Name -> Environ a -> Maybe Type
-environGetType n (_, _, vs, _) = select (\(t, n') -> if value n' == value n then Just t else Nothing) vs
+environGetType :: String -> Environ a -> Maybe Type
+environGetType n (_, _, vs, _) = select (\(t, n') -> if value n' == n then Just t else Nothing) vs
 
 environSetType :: Type -> Name -> Environ a -> Environ a
 environSetType t n (a, b, vs, c) = (a, b, (t,n) : vs, c)
@@ -84,4 +84,6 @@ environMethodGet (Type objectClass classArgs) method methodArgs environ = do
 
 -- "this" type, expression to get, environ
 environExpressionType :: Type -> Expression -> Environ a -> Maybe Type
-environExpressionType = undefined
+environExpressionType myClass expr env = case value expr of
+	Name str -> environGetType str env
+	_ -> undefined
