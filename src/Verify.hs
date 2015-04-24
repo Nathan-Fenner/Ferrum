@@ -19,3 +19,9 @@ assert :: Bool -> Locate Message -> Verify ()
 assert v msg
 	|not v = Left msg
 	|otherwise = return ()
+
+select :: (a -> Maybe b) -> [a] -> Maybe b
+select f l = go $ map f l where
+	go [] = Nothing
+	go (Just x : _) = Just x
+	go (_ : xs) = go xs
