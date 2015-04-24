@@ -174,3 +174,9 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		assert (myReturn env == eType) $ Locate loc $ Message $ "method expected to return `" ++ prettyType (myReturn env) ++ "` but returned expression of type `" ++ prettyType eType ++ "` instead"
 		return env
 	go _ = error "cannot handle that statement yet"
+
+environBlock :: [Statement] -> Environ a -> Verify (Environ a)
+environBlock [] env = return env
+environBlock (s : ss) env = do
+	env' <- environStatement s env
+	environBlock ss env'
