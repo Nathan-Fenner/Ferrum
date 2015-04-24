@@ -195,4 +195,5 @@ environBlock (s : ss) env = do
 -- so just operate on the member!
 environMember :: Member -> Environ a -> Verify ()
 environMember Member { memberValue = member } env = go member where
+	go Field {} = return () -- nothing to check here
 	go _ = error "cannot handle that member type yet"
