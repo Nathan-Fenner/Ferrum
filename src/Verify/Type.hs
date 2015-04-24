@@ -31,6 +31,7 @@ relabelType generics (Type name args) = lookUp name `applyArguments` map (relabe
 data Environ a = Environ
 	{ environClasses :: [Class]
 	, myClass :: Type
+	, myReturn :: Type
 	, scope :: [(Type, Name)]
 	, environValue :: a
 	}
