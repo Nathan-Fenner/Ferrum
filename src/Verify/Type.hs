@@ -74,9 +74,6 @@ environFieldGet (Type name classArgs) field environ = do
 		|value n == value field = Just t
 	checkMemberValue _ = Nothing
 
-typeEqual :: Type -> Type -> Bool
-typeEqual (Type n a) (Type n' a') = value n == value n' && length a == length a' && all (uncurry typeEqual) (zipWith (,) a a')
-
 -- object index type, method name, argument types, environ
 environMethodGet :: Type -> Name -> [Type] -> Environ a -> Verify Type
 environMethodGet (Type objectClass classArgs) method methodArgs environ = do
@@ -89,7 +86,7 @@ environMethodGet (Type objectClass classArgs) method methodArgs environ = do
 	
 	where
 	checkMember classType Method{ methodReturnType = returnType, methodName = name, methodArguments = args }
-		|value name == value method && all (uncurry typeEqual) (zipWith (,) methodArgs $ map (fixType classType . fst) args)
+		|value name == value method && all (uncurry (==)) (zipWith (,) methodArgs $ map (fixType classType . fst) args)
 			= Just $ fixType classType returnType
 	checkMember _ _ = Nothing
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
@@ -146,6 +143,9 @@ stringType :: Type
 stringType = Type (Locate (Special "*") "String") []
 boolType :: Type
 boolType = Type (Locate (Special "*") "Bool") []
+voidType :: Type
+voidType = Type (Locate (Special "*") "Void") []
+
 
 environStatement :: Statement -> Environ a -> Verify (Environ a)
 environStatement Locate{at=loc, value=statement} env = go statement where
@@ -166,4 +166,11 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		_ <- environExpressionType expression env
 		return env
 	go Break = return env
+	go Return{returnExpression = Nothing} = do
+		assert (myReturn env == voidType ) $ Locate loc $ Message $ "void methods cannot return values"
+		return env
+	go Return{returnExpression = Just e} = do
+		eType <- environExpressionType e env
+		assert (myReturn env == eType) $ Locate loc $ Message $ "method expected to return `" ++ prettyType (myReturn env) ++ "` but returned expression of type `" ++ prettyType eType ++ "` instead"
+		return env
 	go _ = error "cannot handle that statement yet"
