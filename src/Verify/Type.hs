@@ -28,31 +28,29 @@ relabelType generics (Type name args) = lookUp name `applyArguments` map (relabe
 	applyArguments :: Type -> [Type] -> Type
 	applyArguments (Type n a) more = Type n (a ++ more)
 
-type Environ a = ([Class], Type, [(Type, Name)], a)
+data Environ a = Environ
+	{ environClasses :: [Class]
+	, myClass :: Type
+	, scope :: [(Type, Name)]
+	, environValue :: a
+	}
 
 environGetType :: Name -> Environ a -> Verify Type
-environGetType n (_, _, vs, _) = case select (\(t, n') -> if value n' == value n then Just t else Nothing) vs of
+environGetType n Environ{scope = vs} = case select (\(t, n') -> if value n' == value n then Just t else Nothing) vs of
 	Just t -> return t
 	Nothing -> Left $ Locate (at n) $ Message $ "Attempt to refer to name `" ++ value n ++ "` which is not in scope"
 
 environSetType :: Type -> Name -> Environ a -> Environ a
-environSetType t n (a, b, vs, c) = (a, b, (t,n) : vs, c)
+environSetType t n e@Environ{scope=vs} = e {scope=(t,n) : vs}
 
 environRemoveType :: Name -> Environ a -> Environ a
-environRemoveType n (a, b, vs, c) = (a, b, dropFirst vs, c) where
+environRemoveType n e@Environ{scope=vs} = e {scope = dropFirst vs} where
 	dropFirst [] = error "attempt to remove thing that's not defined"
 	dropFirst ((t, n') : z)
 		|value n == value n' = z
 		|otherwise = (t, n') : dropFirst z
 
-environMyClass :: Environ a -> Type
-environMyClass (_, c, _, _) = c
 
-environValue :: Environ a -> a
-environValue (_, _, _, a) = a
-
-environClasses :: Environ a -> [Class]
-environClasses (a, _, _, _) = a
 
 environClassGet :: Name -> Environ a -> Verify Class
 environClassGet n e = case select (\c -> if value (className c) == value n then Just c else Nothing) $ environClasses e of
