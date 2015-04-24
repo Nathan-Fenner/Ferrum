@@ -108,4 +108,5 @@ environExpressionType expr env = case value expr of
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
 		environFieldGet leftType name env -- field access
+	Operator left Locate{value = op} right -> undefined
 	_ -> undefined
