@@ -5,7 +5,7 @@ import Message
 import Verify
 import Verify.Class
 import Verify.Kind
-import Verify.Type(checkModule)
+import Verify.Type.Module(checkModule)
 import Syntax.Module
 import Syntax.Class
 import Location
