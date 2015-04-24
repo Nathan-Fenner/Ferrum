@@ -220,3 +220,6 @@ defaultEnviron Module { modClasses = classes } = Environ
 	, scope = []
 	, environValue = ()
 	}
+
+checkModule :: Module -> Verify ()
+checkModule m@Module {modClasses = classes} = let env = defaultEnviron m in mapM_ (flip environClass env) classes
