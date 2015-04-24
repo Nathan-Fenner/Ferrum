@@ -207,7 +207,8 @@ environMember Member { memberValue = member } env = go member where
 
 environClass :: Class -> Environ a -> Verify ()
 environClass Class { className = name, classGeneric = generic, classMembers = members } env = do
-	let env' = env { myClass = Type name (map (flip Type []) generic) }
+	let myType = Type name (map (flip Type []) generic)
+	let env' = env { myClass = myType, scope = (myType , Locate (Special "*") "this" ) : scope env }
 	mapM_ (flip environMember env') members
 	return ()
 
