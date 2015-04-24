@@ -130,7 +130,6 @@ verifyOperator Locate{at=loc, value=op} left right
 	|op `elem` ["==","~="] = assertSame >> return boolType
 	|op == "++" = assertBoth stringType >> return stringType
 	|op `elem` ["and","or"] = assertBoth boolType >> return boolType
-
 	where
 	assertSame = do
 		assert (left == right) $ Locate loc $ Message $ "left and right operands to `" ++ op ++ "` have different types, `" ++ prettyType left ++ "` and `" ++ prettyType right ++ "`"
