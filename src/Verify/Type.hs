@@ -165,6 +165,13 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 	go Perform { performExpression = expression } = do -- just check expression typechecks
 		_ <- environExpressionType expression env
 		return env
+	go If { ifCondition = cond, ifThenBody = thenBody, ifElseBody = elseBody } = do
+		condType <- environExpressionType cond env
+		assert (condType == boolType) $ Locate loc $ Message $ "if statement must have condition of type `Bool` but is given condition of type `" ++ prettyType condType ++ "` instead"
+		_ <- environBlock thenBody env
+		_ <- environBlock elseBody env
+		return env
+		
 	go Break = return env
 	go Return{returnExpression = Nothing} = do
 		assert (myReturn env == voidType ) $ Locate loc $ Message $ "void methods cannot return values"
