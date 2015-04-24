@@ -108,5 +108,30 @@ environExpressionType expr env = case value expr of
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
 		environFieldGet leftType name env -- field access
-	Operator left Locate{value = op} right -> undefined
+	Operator left op right -> do
+		leftType <- environExpressionType left env
+		rightType <- environExpressionType right env
+		verifyOperator op leftType rightType
 	_ -> undefined
+
+
+verifyOperator :: Name -> Type -> Type -> Verify Type
+verifyOperator Locate{at=loc, value=op} left right
+	|op `elem` ["+","-","*","/","%"] = assertBothReturn intType
+	|op == "++" = assertBothReturn stringType
+	|op `elem` ["and","or"] = assertBothReturn boolType
+	where
+	assertBothReturn t = do
+		assert (left == t) $ Locate loc $ Message $ "left operand to `" ++ op ++ "` does not have type " ++ prettyType t
+		assert (right == t) $ Locate loc $ Message $ "right operand to `" ++ op ++ "` does not have type " ++ prettyType t
+		return t
+verifyOperator _ _ _ = undefined
+
+
+
+intType :: Type
+intType = Type (Locate (Special "*") "Int") []
+stringType :: Type
+stringType = Type (Locate (Special "*") "String") []
+boolType :: Type
+boolType = Type (Locate (Special "*") "Bool") []
