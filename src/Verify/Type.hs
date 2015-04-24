@@ -163,4 +163,7 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		rightType <- environExpressionType rightExpression env
 		assert (leftType == rightType) $ Locate loc $ Message $ "Assignment types do not match; left has type `" ++ prettyType leftType ++ "` while right has type `" ++ prettyType rightType ++ "`"
 		return env
+	go Perform { performExpression = expression } = do -- just check expression typechecks
+		environExpressionType expression
+		return env
 	go _ = error "cannot handle that statement yet"
