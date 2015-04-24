@@ -1,12 +1,10 @@
 
 module ExampleProgram {
 
-	class Pair[#x, #y, #z] :: (# -> # -> (# -> #) -> #) {
+	class Pair[#x, #y] {
 
 		private field mut #x : left;
 		private field mut #y : right;
-
-		private field #z[Maybe[#y]] : myZ;
 
 		public constructor( #x : first, #y : second ) retains first in this, retains second in this {
 			this.left = first;
@@ -25,16 +23,6 @@ module ExampleProgram {
 		}
 		public method Void : setRight( #y : newRight ) modifies this, retains newRight in this {
 			this.right = newRight;
-		}
-	}
-
-	class Fixer[#t] :: (# -> #) -> # {
-		public field Maybe[#t[Fixer[#t]]] : thing;
-		public constructor( #t[Fixer[#t]] : existing ) retains existing in this.thing {
-			thing = Just(existing);
-		}
-		public constructor( ) {
-			thing = Nothing();
 		}
 	}
 
