@@ -12,3 +12,4 @@ type Name = Locate String
 displayLocation :: Location -> String
 displayLocation (Location (file, line, col)) = file ++ "/" ++ show line ++ ":" ++ show col
 displayLocation (End file) = file ++ "/end"
+displayLocation (Special s) = "<" ++ s ++ ">"
