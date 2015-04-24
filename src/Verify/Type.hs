@@ -156,5 +156,5 @@ environStatement Locate{at=loc,value=Declare { declarationType = varType, declar
 		Just e -> do
 			eType <- environExpressionType e env'
 			assert (eType == varType) $ Locate (at e) $ Message $ "While declaring variable `" ++ value varName ++ "`, expression given has wrong type; expected `" ++ prettyType varType ++ "` but assigned `" ++ prettyType eType ++ "`"
-	return undefined
+	return env'
 environStatement _ _ = error "cannot handle that statement yet"
