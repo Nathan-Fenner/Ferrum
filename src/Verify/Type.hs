@@ -204,3 +204,9 @@ environMember Member { memberValue = member } env = go member where
 		_ <- environBlock body env'
 		return ()
 	go Field {} = return () -- nothing to check here
+
+environClass :: Class -> Environ a -> Verify ()
+environClass Class { className = name, classGeneric = generic, classMembers = members } env = do
+	let env' = env { myClass = Type name (map (flip Type []) generic) }
+	mapM_ (flip environMember env') members
+	return ()
