@@ -7,7 +7,7 @@ import Syntax.Type
 --import Syntax.Module
 import Syntax.Class
 import Syntax.Member
---import Syntax.Statement
+import Syntax.Statement
 import Syntax.Expression
 import Location
 
@@ -147,3 +147,14 @@ stringType :: Type
 stringType = Type (Locate (Special "*") "String") []
 boolType :: Type
 boolType = Type (Locate (Special "*") "Bool") []
+
+environStatement :: Statement -> Environ a -> Verify (Environ a)
+environStatement Locate{at=loc,value=Declare { declarationType = varType, declarationName = varName, declarationExpression = expr}} env = do
+	let env' = environSetType varType varName env
+	case expr of
+		Nothing -> return ()
+		Just e -> do
+			eType <- environExpressionType e env'
+			assert (eType == varType) $ Locate (at e) $ Message $ "While declaring variable `" ++ value varName ++ "`, expression given has wrong type; expected `" ++ prettyType varType ++ "` but assigned `" ++ prettyType eType ++ "`"
+	return undefined
+environStatement _ _ = error "cannot handle that statement yet"
