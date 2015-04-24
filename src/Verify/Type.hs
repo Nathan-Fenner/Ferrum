@@ -149,12 +149,13 @@ boolType :: Type
 boolType = Type (Locate (Special "*") "Bool") []
 
 environStatement :: Statement -> Environ a -> Verify (Environ a)
-environStatement Locate{at=loc,value=Declare { declarationType = varType, declarationName = varName, declarationExpression = expr}} env = do
-	let env' = environSetType varType varName env
-	case expr of
-		Nothing -> return ()
-		Just e -> do
-			eType <- environExpressionType e env'
-			assert (eType == varType) $ Locate (at e) $ Message $ "While declaring variable `" ++ value varName ++ "`, expression given has wrong type; expected `" ++ prettyType varType ++ "` but assigned `" ++ prettyType eType ++ "`"
-	return env'
-environStatement _ _ = error "cannot handle that statement yet"
+environStatement Locate{at=loc, value=statement} env = go statement where
+	go Declare { declarationType = varType, declarationName = varName, declarationExpression = expr} = do
+		let env' = environSetType varType varName env -- done this way, they shadow without being checked
+		case expr of
+			Nothing -> return ()
+			Just e -> do
+				eType <- environExpressionType e env'
+				assert (eType == varType) $ Locate (at e) $ Message $ "While declaring variable `" ++ value varName ++ "`, expression given has wrong type; expected `" ++ prettyType varType ++ "` but assigned `" ++ prettyType eType ++ "`"
+		return env'
+	go _ = error "cannot handle that statement yet"
