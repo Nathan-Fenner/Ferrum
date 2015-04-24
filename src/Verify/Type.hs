@@ -190,3 +190,9 @@ environBlock [] env = return env
 environBlock (s : ss) env = do
 	env' <- environStatement s env
 	environBlock ss env'
+
+-- it doesn't produce any new meaningful stuffs
+-- so just operate on the member!
+environMember :: Member -> Environ a -> Verify ()
+environMember Member { memberValue = member } env = go member where
+	go _ = error "cannot handle that member type yet"
