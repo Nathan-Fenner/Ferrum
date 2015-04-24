@@ -4,7 +4,7 @@ module Verify.Type where
 import Message
 import Verify
 import Syntax.Type
---import Syntax.Module
+import Syntax.Module
 import Syntax.Class
 import Syntax.Member
 import Syntax.Statement
@@ -210,3 +210,12 @@ environClass Class { className = name, classGeneric = generic, classMembers = me
 	let env' = env { myClass = Type name (map (flip Type []) generic) }
 	mapM_ (flip environMember env') members
 	return ()
+
+defaultEnviron :: Module -> Environ ()
+defaultEnviron Module { modClasses = classes } = Environ
+	{ environClasses = classes
+	, myClass = voidType
+	, myReturn = voidType
+	, scope = []
+	, environValue = ()
+	}
