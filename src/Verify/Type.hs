@@ -112,13 +112,16 @@ environExpressionType expr env = case value expr of
 		leftType <- environExpressionType left env
 		rightType <- environExpressionType right env
 		verifyOperator op leftType rightType
+	Prefix op thing -> do
+		thingType <- environExpressionType thing env
+		verifyPrefix op thingType
 	_ -> undefined
 
-verifyUnary :: Name -> Type -> Verify Type
-verifyUnary Locate{at=loc, value=op} thing
+verifyPrefix :: Name -> Type -> Verify Type
+verifyPrefix Locate{at=loc, value=op} thing
 	|op == "not" = (assert (thing == boolType) $ Locate loc $ Message $ "operator to prefix `not` must be of type `Bool` but is of type `" ++ prettyType thing ++ "`") >> return boolType
 	|op == "-" = (assert (thing == intType) $ Locate loc $ Message $ "operator to prefix `-` must be of type `Int` but is of type `" ++ prettyType thing ++ "`") >> return intType
-verifyUnary _ _ = error "cannot handle that prefix operator yet"
+verifyPrefix _ _ = error "cannot handle that prefix operator yet"
 
 verifyOperator :: Name -> Type -> Type -> Verify Type
 verifyOperator Locate{at=loc, value=op} left right
