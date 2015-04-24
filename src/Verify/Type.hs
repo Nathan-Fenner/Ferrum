@@ -195,5 +195,9 @@ environBlock (s : ss) env = do
 -- so just operate on the member!
 environMember :: Member -> Environ a -> Verify ()
 environMember Member { memberValue = member } env = go member where
+	go Constructor { startLocation = loc, constructorArguments = args, constructorBody = body } = do
+		let env' = env { myReturn = voidType, scope = args ++ scope env }
+		_ <- environBlock body env'
+		return ()
 	go Field {} = return () -- nothing to check here
 	go _ = error "cannot handle that member type yet"
