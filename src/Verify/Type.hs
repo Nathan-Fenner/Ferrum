@@ -171,7 +171,11 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		_ <- environBlock thenBody env
 		_ <- environBlock elseBody env
 		return env
-		
+	go While { whileCondition = cond, whileBody = body } = do
+		condType <- environExpressionType cond env
+		assert (condType == boolType) $ Locate loc $ Message $ "while statement must have condition of type `Bool` but is given condition of type `" ++ prettyType condType ++ "` instead"
+		_ <- environBlock body env
+		return env
 	go Break = return env
 	go Return{returnExpression = Nothing} = do
 		assert (myReturn env == voidType ) $ Locate loc $ Message $ "void methods cannot return values"
@@ -180,7 +184,6 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		eType <- environExpressionType e env
 		assert (myReturn env == eType) $ Locate loc $ Message $ "method expected to return `" ++ prettyType (myReturn env) ++ "` but returned expression of type `" ++ prettyType eType ++ "` instead"
 		return env
-	go _ = error "cannot handle that statement yet"
 
 environBlock :: [Statement] -> Environ a -> Verify (Environ a)
 environBlock [] env = return env
