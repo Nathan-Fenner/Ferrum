@@ -33,6 +33,13 @@ environExpressionType expr env = case value expr of
 	Prefix op thing -> do
 		thingType <- environExpressionType thing env
 		verifyPrefix op thingType
+	Index array index -> do
+		arrayType <- environExpressionType array env
+		indexType <- environExpressionType index env
+		assert (value (typeName arrayType) == "Array") $ Locate (at array) $ Message $ "An indexed value must be of type `Array[?]`, but this value is of type `" ++ prettyType arrayType ++ "`"
+		assert (indexType == intType) $ Locate (at array) $ Message $ "An indexed value must be of type `Int`, but this value is of type `" ++ prettyType indexType ++ "`"
+		-- return array contents:
+		return $ head $ typeArguments arrayType
 	where accessVisibility t = (if (value $ typeName $ myClass env) == (value $ typeName t) then Private else Public)
 
 verifyPrefix :: Name -> Type -> Verify Type
