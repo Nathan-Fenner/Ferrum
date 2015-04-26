@@ -11,6 +11,7 @@ import Lex
 import Verify
 import Verify.Module
 
+import Verify.Effect
 
 main :: IO ()
 main = do
