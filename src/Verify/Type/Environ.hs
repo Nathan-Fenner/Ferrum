@@ -79,4 +79,20 @@ environMethodGet (Type objectClass classArgs) method methodArgs visibility envir
 	checkMemberValue _ _ = Nothing
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
 
-
+environConstructorCheck :: Type -> [Type] -> Visibility -> Environ a -> Verify ()
+environConstructorCheck (Type objectClass classArgs) conArgs visibility environ = do
+	classType <- environClassGet objectClass environ
+	case select (checkMember classType) $ classMembers classType of
+		Just _ -> return ()
+		Nothing -> Left $ undefined
+	where
+	checkMember :: Class -> Member -> Maybe ()
+	checkMember c m
+		|memberVisibility m > visibility = Nothing
+		|otherwise = checkMemberValue c (memberValue m)
+	checkMemberValue :: Class -> MemberValue -> Maybe ()
+	checkMemberValue classType Constructor{ constructorArguments = args }
+		|all (uncurry (==)) (zipWith (,) conArgs $ map (fixType classType . fst) args)
+			= Just ()
+	checkMemberValue _ _ = Nothing
+	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
