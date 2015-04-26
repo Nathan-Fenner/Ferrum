@@ -21,8 +21,7 @@ parseVisibility = do
 	case next of
 		Just (Locate _ (TSpecial "public")) -> advance 1 >> return Public
 		Just (Locate _ (TSpecial "private")) -> advance 1 >> return Private
-		Just (Locate _ (TSpecial "protected")) -> advance 1 >> return Protected
-		_ -> crash $ Message $ "expected `public` or `private` or `protected` to indicate member visibility"
+		_ -> crash $ Message $ "expected `public` or `private` to indicate member visibility"
 
 parseMember :: Parse Member
 parseMember = do

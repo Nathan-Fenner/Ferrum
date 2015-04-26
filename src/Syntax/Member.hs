@@ -10,8 +10,7 @@ import Syntax.Effect
 data Visibility
 	= Public
 	| Private
-	| Protected
-	deriving (Show, Eq)
+	deriving (Show, Eq, Ord)
 
 data Member = Member {memberVisibility :: Visibility, memberValue :: MemberValue}
 	deriving Show

@@ -40,17 +40,20 @@ environClassGet n e = case select (\c -> if value (className c) == value n then 
 	Nothing -> Left $ Locate (at n) $ Message $ "attempt to refer to classname `" ++ value n ++ "` which is not in scope"
 
 -- the environment, the type of the object to index, the name of the field, returns the type (if it exists)
-environFieldGet :: Type -> Name -> Environ a -> Verify Type
-environFieldGet (Type name classArgs) field environ = do
+environFieldGet :: Type -> Name -> Visibility -> Environ a -> Verify Type
+environFieldGet accessType@(Type name classArgs) field visibility environ = do
 	objectType <- environClassGet name environ
 	case do
 		fieldMember <- select checkMember $ classMembers objectType
 		return $ relabelType (zipWith (,) (classGeneric objectType) classArgs) fieldMember
 		of
 		Just t -> return t
-		Nothing -> Left $ Locate (at field) $ Message $ "attempt to access field `" ++ value field ++ "` which doesn't exist in object of class type `" ++ value name ++ "`"
+		Nothing -> Left $ Locate (at field) $ Message $ "attempt to access field `" ++ value field ++ "` which doesn't exist " ++ (if visibility == Public then "or isn't public " else "") ++ "in object of type `" ++ prettyType accessType ++ "`"
 	where
-	checkMember m = checkMemberValue (memberValue m)
+	checkMember :: Member -> Maybe Type
+	checkMember m
+		|memberVisibility m > visibility = Nothing -- not accessible
+		|otherwise = checkMemberValue (memberValue m)
 	checkMemberValue (Field { fieldName = n, fieldType = t })
 		|value n == value field = Just t
 	checkMemberValue _ = Nothing

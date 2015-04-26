@@ -6,6 +6,7 @@ import Message
 import Location
 import Verify
 import Syntax.Expression
+import Syntax.Member(Visibility(Public, Private))
 import Syntax.Type
 
 -- "this" type, expression to get, environ
@@ -20,7 +21,7 @@ environExpressionType expr env = case value expr of
 		environMethodGet leftType name argTypes env -- method access
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
-		environFieldGet leftType name env -- field access
+		environFieldGet leftType name (if (value $ typeName $ myClass env) == (value $ typeName leftType) then Private else Public) env -- field access
 	Operator left op right -> do
 		leftType <- environExpressionType left env
 		rightType <- environExpressionType right env
