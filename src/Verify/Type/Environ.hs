@@ -8,6 +8,11 @@ import Message
 import Location
 import Verify
 
+(#>>#) :: Monad m => (Environ a -> m b) -> (Environ a -> m c) -> Environ a -> m c
+(f #>># g) env = f env >> g env
+
+(#>>=#) :: Monad m => (Environ a -> m b) -> (b -> Environ a -> m c) -> Environ a -> m c
+(f #>>=# g) env = f env >>= flip g env
 
 data Environ a = Environ
 	{ environClasses :: [Class]
