@@ -84,7 +84,7 @@ environConstructorCheck (Type objectClass classArgs) conArgs visibility environ 
 	classType <- environClassGet objectClass environ
 	case select (checkMember classType) $ classMembers classType of
 		Just _ -> return ()
-		Nothing -> Left $ undefined
+		Nothing -> Left $ Locate (at objectClass) $ Message $ "Constructor has no applicable (public) constructor taking arguments of type `(" ++ (concat $ map (\t -> prettyType t ++ ", ") conArgs) ++ ")`"
 	where
 	checkMember :: Class -> Member -> Maybe ()
 	checkMember c m
