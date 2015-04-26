@@ -3,6 +3,7 @@ module Verify.Kind where
 
 import Verify
 import Verify.Kind.Statement
+import Verify.Kind.Class
 import Verify.Kind.Type
 import Syntax.Kind
 import Syntax.Member
@@ -11,10 +12,7 @@ import Syntax.Module
 import Location
 import Message
 
-kindOfClass :: Class -> Kind
-kindOfClass c = case classKind c of
-	Nothing -> simpleKind (length $ classGeneric c)
-	Just k -> k
+
 
 simpleClassKindCheck :: Class -> Verify ()
 simpleClassKindCheck c = assert (kindArity (kindOfClass c) == length (classGeneric c)) $ Locate (at $ className c) $ Message $ "class `" ++ value (className c) ++ "` has incompatible kind-arity `(" ++ niceKind (kindOfClass c) ++ ")` with its number of formal parameters (" ++ (show $ length $ classGeneric c) ++ ") which would predict a kind of the form `(" ++ (exampleKind $ length $ classGeneric c) ++ ")`"

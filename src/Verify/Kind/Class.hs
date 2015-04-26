@@ -2,11 +2,17 @@
 module Verify.Kind.Class where
 
 import Message
+import Syntax.Kind
 import Syntax.Class
 import Syntax.Member
 import Syntax.Type
 import Verify
 import Location
+
+kindOfClass :: Class -> Kind
+kindOfClass c = case classKind c of
+	Nothing -> simpleKind (length $ classGeneric c)
+	Just k -> k
 
 verifyClassName :: Class -> Verify ()
 verifyClassName given = inspect (value name) where
