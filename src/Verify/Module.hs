@@ -7,4 +7,4 @@ import Verify.Kind
 import Verify.Type.Module
 
 verifyModule :: Module -> Verify ()
-verifyModule = verifyModuleKind >.> checkModule
+verifyModule = verifyModuleKind >.> verifyModuleType

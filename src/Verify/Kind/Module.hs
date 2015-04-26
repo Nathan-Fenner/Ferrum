@@ -4,7 +4,6 @@ module Verify.Kind.Module where
 import Message
 import Verify
 import Verify.Kind.Class
-import Verify.Type.Module(checkModule)
 import Syntax.Module
 import Syntax.Class
 import Syntax.Kind
