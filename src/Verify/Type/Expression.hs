@@ -23,6 +23,9 @@ environExpressionType expr env = case value expr of
 		argTypes <- mapM (flip environExpressionType env) args
 		environConstructorCheck t argTypes (accessVisibility t) env
 		return t
+	Call fun _ -> do
+		funType <- environExpressionType fun env
+		Left $ Locate (at fun) $ Message $ "value called must be a function; cannot be an arbitrary expression of type `" ++ prettyType funType ++ "`"
 	Dot Locate {value = New t} _ -> bareConstructorMessage t
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
