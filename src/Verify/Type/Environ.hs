@@ -8,29 +8,28 @@ import Message
 import Location
 import Verify
 
-(#>>#) :: Monad m => (Environ a -> m b) -> (Environ a -> m c) -> Environ a -> m c
+(#>>#) :: Monad m => (Environ -> m b) -> (Environ -> m c) -> Environ -> m c
 (f #>># g) env = f env >> g env
 
-(#>>=#) :: Monad m => (Environ a -> m b) -> (b -> Environ a -> m c) -> Environ a -> m c
+(#>>=#) :: Monad m => (Environ -> m b) -> (b -> Environ -> m c) -> Environ -> m c
 (f #>>=# g) env = f env >>= flip g env
 
-data Environ a = Environ
+data Environ = Environ
 	{ environClasses :: [Class]
 	, myClass :: Type
 	, myReturn :: Type
 	, scope :: [(Type, Name)]
-	, environValue :: a
 	}
 
-environGetType :: Name -> Environ a -> Verify Type
+environGetType :: Name -> Environ -> Verify Type
 environGetType n Environ{scope = vs} = case select (\(t, n') -> if value n' == value n then Just t else Nothing) vs of
 	Just t -> return t
 	Nothing -> Left $ Locate (at n) $ Message $ "Attempt to refer to name `" ++ value n ++ "` which is not in scope"
 
-environSetType :: Type -> Name -> Environ a -> Environ a
+environSetType :: Type -> Name -> Environ -> Environ
 environSetType t n e@Environ{scope=vs} = e {scope=(t,n) : vs}
 
-environRemoveType :: Name -> Environ a -> Environ a
+environRemoveType :: Name -> Environ -> Environ
 environRemoveType n e@Environ{scope=vs} = e {scope = dropFirst vs} where
 	dropFirst [] = error "attempt to remove thing that's not defined"
 	dropFirst ((t, n') : z)
@@ -39,13 +38,13 @@ environRemoveType n e@Environ{scope=vs} = e {scope = dropFirst vs} where
 
 
 
-environClassGet :: Name -> Environ a -> Verify Class
+environClassGet :: Name -> Environ -> Verify Class
 environClassGet n e = case select (\c -> if value (className c) == value n then Just c else Nothing) $ environClasses e of
 	Just t -> return t
 	Nothing -> Left $ Locate (at n) $ Message $ "attempt to refer to classname `" ++ value n ++ "` which is not in scope"
 
 -- the environment, the type of the object to index, the name of the field, returns the type (if it exists)
-environFieldGet :: Type -> Name -> Visibility -> Environ a -> Verify Type
+environFieldGet :: Type -> Name -> Visibility -> Environ -> Verify Type
 environFieldGet accessType@(Type name classArgs) field visibility environ = do
 	objectType <- environClassGet name environ
 	case do
@@ -64,7 +63,7 @@ environFieldGet accessType@(Type name classArgs) field visibility environ = do
 	checkMemberValue _ = Nothing
 
 -- object index type, method name, argument types, environ
-environMethodGet :: Type -> Name -> [Type] -> Visibility -> Environ a -> Verify Type
+environMethodGet :: Type -> Name -> [Type] -> Visibility -> Environ -> Verify Type
 environMethodGet (Type objectClass classArgs) method methodArgs visibility environ = do
 	classType <- environClassGet objectClass environ
 	-- the class type for our instance
@@ -84,7 +83,7 @@ environMethodGet (Type objectClass classArgs) method methodArgs visibility envir
 	checkMemberValue _ _ = Nothing
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
 
-environConstructorCheck :: Type -> [Type] -> Visibility -> Environ a -> Verify ()
+environConstructorCheck :: Type -> [Type] -> Visibility -> Environ -> Verify ()
 environConstructorCheck (Type objectClass classArgs) conArgs visibility environ = do
 	classType <- environClassGet objectClass environ
 	case select (checkMember classType) $ classMembers classType of

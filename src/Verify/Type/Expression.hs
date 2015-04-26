@@ -10,7 +10,7 @@ import Syntax.Member(Visibility(Public, Private))
 import Syntax.Type
 
 -- "this" type, expression to get, environ
-environExpressionType :: Expression -> Environ a -> Verify Type
+environExpressionType :: Expression -> Environ -> Verify Type
 environExpressionType expr env = case value expr of
 	Name str -> environGetType (Locate (at expr) str) env
 	LiteralInt _ -> return (Type (Locate (at expr) "Int") [])

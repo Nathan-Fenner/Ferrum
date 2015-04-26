@@ -9,7 +9,7 @@ import Syntax.Member
 
 -- it doesn't produce any new meaningful stuffs
 -- so just operate on the member!
-environMember :: Member -> Environ a -> Verify ()
+environMember :: Member -> Environ -> Verify ()
 environMember Member { memberValue = member } env = go member where
 	go Method { methodReturnType = returnType, methodArguments = args, methodBody = body } = do
 		let env' = env { myReturn = returnType, scope = args ++ scope env }

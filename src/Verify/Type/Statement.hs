@@ -10,7 +10,7 @@ import Syntax.Type
 import Syntax.Statement
 
 
-environStatement :: Statement -> Environ a -> Verify (Environ a)
+environStatement :: Statement -> Environ -> Verify Environ
 environStatement Locate{at=loc, value=statement} env = go statement where
 	go Declare { declarationType = varType, declarationName = varName, declarationExpression = expr} = do
 		let env' = environSetType varType varName env -- done this way, they shadow without being checked
@@ -48,7 +48,7 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		assert (myReturn env == eType) $ Locate loc $ Message $ "method expected to return `" ++ prettyType (myReturn env) ++ "` but returned expression of type `" ++ prettyType eType ++ "` instead"
 		return env
 
-environBlock :: [Statement] -> Environ a -> Verify (Environ a)
+environBlock :: [Statement] -> Environ -> Verify (Environ)
 environBlock [] env = return env
 environBlock (s : ss) env = do
 	env' <- environStatement s env

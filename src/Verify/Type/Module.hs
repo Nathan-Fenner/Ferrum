@@ -10,12 +10,11 @@ import Syntax.Module
 verifyModuleType :: Module -> Verify ()
 verifyModuleType m@Module {modClasses = classes} = let env = defaultEnviron m in mapM_ (flip environClass env) classes
 
-defaultEnviron :: Module -> Environ ()
+defaultEnviron :: Module -> Environ
 defaultEnviron Module { modClasses = classes } = Environ
 	{ environClasses = classes
 	, myClass = voidType
 	, myReturn = voidType
 	, scope = []
-	, environValue = ()
 	}
 
