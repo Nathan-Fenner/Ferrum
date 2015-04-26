@@ -59,20 +59,24 @@ environFieldGet accessType@(Type name classArgs) field visibility environ = do
 	checkMemberValue _ = Nothing
 
 -- object index type, method name, argument types, environ
-environMethodGet :: Type -> Name -> [Type] -> Environ a -> Verify Type
-environMethodGet (Type objectClass classArgs) method methodArgs environ = do
+environMethodGet :: Type -> Name -> [Type] -> Visibility -> Environ a -> Verify Type
+environMethodGet (Type objectClass classArgs) method methodArgs visibility environ = do
 	classType <- environClassGet objectClass environ
 	-- the class type for our instance
 	-- now we need to select its methods named `method`
-	case select (checkMember classType) $ map memberValue $ classMembers classType of
+	case select (checkMember classType) $ classMembers classType of
 		Just t -> return t
-		Nothing -> Left $ Locate (at method) $ Message $ "Attempt to call non-existent method `" ++ value method ++ "` with arguments of types < ... TODO >"
-	
+		Nothing -> Left $ Locate (at method) $ Message $ "Attempt to call non-existent " ++ (if visibility == Public then "or private " else "") ++ "method `" ++ value method ++ "` with arguments of types < ... TODO >"
 	where
-	checkMember classType Method{ methodReturnType = returnType, methodName = name, methodArguments = args }
+	checkMember :: Class -> Member -> Maybe Type
+	checkMember c m
+		|memberVisibility m > visibility = Nothing
+		|otherwise = checkMemberValue c (memberValue m)
+	checkMemberValue :: Class -> MemberValue -> Maybe Type
+	checkMemberValue classType Method{ methodReturnType = returnType, methodName = name, methodArguments = args }
 		|value name == value method && all (uncurry (==)) (zipWith (,) methodArgs $ map (fixType classType . fst) args)
 			= Just $ fixType classType returnType
-	checkMember _ _ = Nothing
+	checkMemberValue _ _ = Nothing
 	fixType classType t = relabelType (zipWith (,) (classGeneric classType) classArgs) t
 
 
