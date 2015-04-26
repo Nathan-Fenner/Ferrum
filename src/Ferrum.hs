@@ -9,11 +9,7 @@ import Location
 import Lex
 
 import Verify
-import Verify.Type
-import Verify.Class
 import Verify.Module
-import Verify.Member
-import Verify.Statement
 
 import Verify.Kind
 

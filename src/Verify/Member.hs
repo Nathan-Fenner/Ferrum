@@ -1,1 +1,0 @@
-module Verify.Member where

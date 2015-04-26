@@ -49,7 +49,6 @@ executable Ferrum
         Verify.Type.Member,
         Verify.Type.Class,
         Verify.Type.Module,
-      Verify.Member,
       Verify.Statement,
       Verify.Module,
       Verify.Kind,
