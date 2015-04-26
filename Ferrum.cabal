@@ -42,16 +42,16 @@ executable Ferrum
       Parse.Module,
       Parse.Kind,
     Verify,
-      Verify.Class,
+      
+      Verify.Kind,
+        Verify.Kind.Class,
+        Verify.Kind.Module,
       Verify.Type,
         Verify.Type.Expression,
         Verify.Type.Statement,
         Verify.Type.Member,
         Verify.Type.Class,
         Verify.Type.Module,
-      Verify.Statement,
-      Verify.Module,
-      Verify.Kind,
     Lex
   -- other-extensions:    
   build-depends:       data-fix >= 0.0.1, base >=4.7 && <4.8

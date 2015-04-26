@@ -1,5 +1,5 @@
 
-module Verify.Class where
+module Verify.Kind.Class where
 
 import Message
 import Syntax.Class

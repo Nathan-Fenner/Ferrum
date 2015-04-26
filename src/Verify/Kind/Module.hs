@@ -1,10 +1,10 @@
 
-module Verify.Module where
+module Verify.Kind.Module where
 
 import Message
 import Verify
-import Verify.Class
 import Verify.Kind
+import Verify.Kind.Class
 import Verify.Type.Module(checkModule)
 import Syntax.Module
 import Syntax.Class
