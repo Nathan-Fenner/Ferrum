@@ -9,9 +9,8 @@ import Location
 import Lex
 
 import Verify
-import Verify.Kind.Module
+import Verify.Module
 
-import Verify.Kind
 
 main :: IO ()
 main = do

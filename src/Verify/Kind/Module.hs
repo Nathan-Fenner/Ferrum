@@ -3,11 +3,11 @@ module Verify.Kind.Module where
 
 import Message
 import Verify
-import Verify.Kind
 import Verify.Kind.Class
 import Verify.Type.Module(checkModule)
 import Syntax.Module
 import Syntax.Class
+import Syntax.Kind
 import Location
 
 verifyModuleClassesUnique :: Module -> Verify ()
@@ -29,9 +29,26 @@ verifyModuleClassesUnique (Module _name classes) = unique $ map className classe
 verifyModuleClasses :: Module -> Verify ()
 verifyModuleClasses (Module _name classes) = mapM_ verifyClass classes
 
-verifyModule :: Module -> Verify ()
-verifyModule
-	= verifyModuleClassesUnique
-	>.> verifyModuleClasses
-	>.> verifyModuleKind
-	>.> checkModule
+simpleModuleKindCheck :: Module -> Verify ()
+simpleModuleKindCheck (Module _ classes) = mapM_ simpleClassKindCheck classes
+
+
+
+
+verifyModuleKindEach :: Module -> Verify ()
+verifyModuleKindEach m@Module{ modClasses = classes } = do
+	-- first, check that everything in the module has an appropriate kind
+	-- in particular, that their generic arguments match their explicit kind
+	-- if this explicit kind is stated
+	simpleModuleKindCheck m
+	-- now we can assume that they're correct and consistent
+	let internal = map (\c -> (value $ className c, kindOfClass c)) classes
+
+	-- TODO: actually get the REAL external (requires loading all imported modules)
+	let external = [("Void",Concrete),("Int",Concrete),("Maybe",Arrow Concrete Concrete)]
+	
+	let known = internal ++ external
+	-- internals must be checked too
+	mapM_ (verifyClassKind known) classes
+	return ()
+
