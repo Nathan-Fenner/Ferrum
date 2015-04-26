@@ -23,16 +23,22 @@ environExpressionType expr env = case value expr of
 		argTypes <- mapM (flip environExpressionType env) args
 		environConstructorCheck t argTypes (accessVisibility t) env
 		return t
+	Dot Locate {value = New t} _ -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
 		environFieldGet leftType name (accessVisibility leftType) env -- field access
+	Operator Locate {value = New t} _ _ -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
+	Operator _ _ Locate {value = New t} -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
 	Operator left op right -> do
 		leftType <- environExpressionType left env
 		rightType <- environExpressionType right env
 		verifyOperator op leftType rightType
+	Prefix _ Locate {value = New t} -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
 	Prefix op thing -> do
 		thingType <- environExpressionType thing env
 		verifyPrefix op thingType
+	Index Locate {value = New t} _ -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
+	Index _ Locate {value = New t} -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
 	Index array index -> do
 		arrayType <- environExpressionType array env
 		indexType <- environExpressionType index env
@@ -40,6 +46,7 @@ environExpressionType expr env = case value expr of
 		assert (indexType == intType) $ Locate (at array) $ Message $ "An indexed value must be of type `Int`, but this value is of type `" ++ prettyType indexType ++ "`"
 		-- return array contents:
 		return $ head $ typeArguments arrayType
+	New t -> Left $ Locate (at $ typeName t) $ Message $ "Constructors require arguments"
 	where accessVisibility t = (if (value $ typeName $ myClass env) == (value $ typeName t) then Private else Public)
 
 verifyPrefix :: Name -> Type -> Verify Type
