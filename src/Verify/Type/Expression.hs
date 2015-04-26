@@ -18,10 +18,10 @@ environExpressionType expr env = case value expr of
 	Call (Locate {value = Dot left name}) args -> do -- method call
 		leftType <- environExpressionType left env
 		argTypes <- mapM (flip environExpressionType env) args
-		environMethodGet leftType name argTypes (if (value $ typeName $ myClass env) == (value $ typeName leftType) then Private else Public) env -- method access
+		environMethodGet leftType name argTypes (accessVisibility leftType) env -- method access
 	Dot left name -> do -- field get
 		leftType <- environExpressionType left env
-		environFieldGet leftType name (if (value $ typeName $ myClass env) == (value $ typeName leftType) then Private else Public) env -- field access
+		environFieldGet leftType name (accessVisibility leftType) env -- field access
 	Operator left op right -> do
 		leftType <- environExpressionType left env
 		rightType <- environExpressionType right env
@@ -30,6 +30,7 @@ environExpressionType expr env = case value expr of
 		thingType <- environExpressionType thing env
 		verifyPrefix op thingType
 	_ -> undefined
+	where accessVisibility t = (if (value $ typeName $ myClass env) == (value $ typeName t) then Private else Public)
 
 verifyPrefix :: Name -> Type -> Verify Type
 verifyPrefix Locate{at=loc, value=op} thing
