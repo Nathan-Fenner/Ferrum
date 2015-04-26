@@ -7,6 +7,7 @@ import Syntax.Class
 import Syntax.Member
 import Syntax.Type
 import Verify
+import Verify.Kind.Member
 import Location
 
 kindOfClass :: Class -> Kind
@@ -17,7 +18,11 @@ kindOfClass c = case classKind c of
 simpleClassKindCheck :: Class -> Verify ()
 simpleClassKindCheck c = assert (kindArity (kindOfClass c) == length (classGeneric c)) $ Locate (at $ className c) $ Message $ "class `" ++ value (className c) ++ "` has incompatible kind-arity `(" ++ niceKind (kindOfClass c) ++ ")` with its number of formal parameters (" ++ (show $ length $ classGeneric c) ++ ") which would predict a kind of the form `(" ++ (exampleKind $ length $ classGeneric c) ++ ")`"
 
-
+verifyClassKind :: [(String, Kind)] -> Class -> Verify ()
+verifyClassKind known c@(Class { classMembers = members, classGeneric = generics }) = do
+	let genericKinds = zipWith (,) (map value generics) (fst $ uncurryKind $ kindOfClass c)
+	let totalList = genericKinds ++ known
+	mapM_ (verifyMemberKind totalList) members
 
 -------------------
 
