@@ -16,6 +16,6 @@ data ExpressionValue
 	| Call Expression [Expression]
 	| Index Expression Expression
 	| Dot Expression Name
-	| New Name [Type] [Expression]
+	| New Type
 	deriving Show
 

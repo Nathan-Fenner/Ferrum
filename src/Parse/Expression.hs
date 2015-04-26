@@ -3,6 +3,7 @@ module Parse.Expression where
 
 import Message
 import Parse.Core
+import Parse.Type
 import Lex
 import Location
 import Syntax.Expression
@@ -21,6 +22,9 @@ parseAtomCore = do
 		TWord name -> return $ Locate atExp $ Name name
 		TInt int -> return $ Locate atExp $ LiteralInt int
 		TString string -> return $ Locate atExp $ LiteralString string
+		TSpecial "new" -> do
+			conType <- parseType
+			return $ Locate atExp $ New conType
 		_ -> advance (-1) >> crash message
 	where
 		message = Message "expected name, literal, prefix operator or `(` to begin atomic expression"
