@@ -5,8 +5,7 @@ import Location
 import Syntax.Expression
 
 data EffectValue
-	= Discard Expression
-	| Modify Expression
+	= Modify Expression
 	| Alter Expression
 	| Retain Expression Expression
 	| Effect Expression

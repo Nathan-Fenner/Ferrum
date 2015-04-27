@@ -9,12 +9,6 @@ import Location
 import Syntax.Effect
 
 
-parseEffectDiscard :: Parse Effect
-parseEffectDiscard = do
-	discardAt <- expectAt (TSpecial "discards") $ Message $ "expected keyword `discards`"
-	expr <- parseExpression
-	return $ Locate discardAt $ Discard expr
-
 parseEffectModify :: Parse Effect
 parseEffectModify = do
 	modifyAt <- expectAt (TSpecial "modifies") $ Message $ "expected keyword `modifies`"
@@ -45,7 +39,6 @@ parseEffect :: Parse Effect
 parseEffect = do
 	next <- peekMaybe
 	case fmap value next of
-		Just (TSpecial "discards") -> parseEffectDiscard
 		Just (TSpecial "modifies") -> parseEffectModify
 		Just (TSpecial "alters") -> parseEffectAlter
 		Just (TSpecial "retains") -> parseEffectRetain
