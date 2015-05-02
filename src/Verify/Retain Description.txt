@@ -1,0 +1,32 @@
+
+The rules:
+
+[1] v = e; ===> retain `e` in `v`
+[2] method( ) {retains rs}; ===> rs
+[3] retain `e` in `v.n` ===> retain `e` in `v`
+[4] retain `e` in `v`   ===> retain `e.n` in `v`
+
+--
+
+A method must make note of _all_ retentions introduced between:
+	1) arguments
+	2) globals
+	3) "this" and fields
+	4) return value(s)
+
+The system will work as follows:
+(1) Keep a list of all known retentions
+	ALL expressions produce objects so ALL of these objects are tracked
+	retentions can refer to either variables (named references)
+	OR to arbitrary expression locations
+(2) Apply [2] to each expression
+(2) Apply [1] on each assignment
+(3) Apply [3] to achieve transitive closure
+(4) make note of all returned names/objects - verify them at these points
+(5) once done, verify that each retention is subsumed as per [4] by some stated rule
+(6*) warn about unused things in the effects list
+
+
+
+
+
