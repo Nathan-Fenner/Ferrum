@@ -30,7 +30,18 @@ lineFlowStatus Locate { value = If { ifThenBody = thenBody, ifElseBody = elseBod
 	thenFlow <- blockFlowStatus thenBody
 	elseFlow <- blockFlowStatus elseBody
 	return $ mergeEitherState thenFlow elseFlow
-lineFlowStatus _ = return $ FlowStatus { mayProceed = True, mayReturn = False, mayBreak = False }
+lineFlowStatus Locate { at = here, value = Forever{ foreverBody = body } } = do
+	bodyFlow <- blockFlowStatus body
+	if not (mayProceed bodyFlow)
+		then Left $ Locate here $ Message $ "the end of a forever loop must be reachable"
+		else return ()
+	return $ FlowStatus { mayProceed = mayBreak bodyFlow, mayReturn = mayReturn bodyFlow, mayBreak = False }
+lineFlowStatus Locate{ value = Declare{} } = return defaultFlow
+lineFlowStatus Locate{ value = Assign{} } = return defaultFlow
+lineFlowStatus Locate{ value = Perform{} } = return defaultFlow
+
+defaultFlow :: FlowStatus
+defaultFlow = FlowStatus { mayProceed = True, mayReturn = False, mayBreak = False }
 
 unreachableAfter :: FlowStatus -> Bool
 unreachableAfter = not . mayProceed
