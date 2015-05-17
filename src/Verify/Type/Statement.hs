@@ -39,6 +39,7 @@ environStatement Locate{at=loc, value=statement} env = go statement where
 		assert (condType == boolType) $ Locate loc $ Message $ "while statement must have condition of type `Bool` but is given condition of type `" ++ prettyType condType ++ "` instead"
 		_ <- environBlock body env
 		return env
+	go Forever { foreverBody = body } = environBlock body env
 	go Break = return env
 	go Return{returnExpression = Nothing} = do
 		assert (myReturn env == voidType ) $ Locate loc $ Message $ "void methods cannot return values"
