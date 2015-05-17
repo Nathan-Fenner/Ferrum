@@ -16,7 +16,7 @@ mergeEitherState :: FlowStatus -> FlowStatus -> FlowStatus
 mergeEitherState (FlowStatus a b c) (FlowStatus x y z) = FlowStatus (a || x) (b || y) (c || z)
 
 mergeSeqState :: FlowStatus -> FlowStatus -> FlowStatus
-mergeSeqState (FlowStatus a b c) (FlowStatus x y z) = FlowStatus (a && x) (b && y) z
+mergeSeqState (FlowStatus a b _) (FlowStatus x y z) = FlowStatus (a && x) (b && y) z
 
 lineFlowStatus :: Statement -> Verify FlowStatus
 lineFlowStatus Locate { value = Break } = return $ FlowStatus { mayProceed = False, mayReturn = False, mayBreak = True }
