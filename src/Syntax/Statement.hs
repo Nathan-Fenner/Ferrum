@@ -28,6 +28,9 @@ data StatementForm
 		{ whileCondition :: Expression
 		, whileBody :: [Statement]
 		}
+	| Forever
+		{ foreverBody :: [Statement]
+		}
 	| Break
 	| Return
 		{ returnExpression :: (Maybe Expression)
