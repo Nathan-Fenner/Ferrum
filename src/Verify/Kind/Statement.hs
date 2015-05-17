@@ -13,7 +13,11 @@ verifyStatementKind known statement' = case statement of
 		verifyBlockKind known thenBody
 		verifyBlockKind known elseBody
 	While { whileBody = body } -> verifyBlockKind known body
-	_ -> return ()
+	Forever { foreverBody = body } -> verifyBlockKind known body
+	Assign {} -> return ()
+	Perform {} -> return ()
+	Return {} -> return ()
+	Break {} -> return ()
 	where
 	statement = value statement'
 
