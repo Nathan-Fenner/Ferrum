@@ -81,6 +81,12 @@ parseWhile = do
 	body <- parseBody $ Message $ "expected `{` to open after while statement beginning at " ++ displayLocation whileAt
 	return $ Locate whileAt $ While condition body
 
+parseForever :: Parse Statement
+parseForever = do
+	foreverAt <- expectAt (TSpecial "forever") $ Message $ "expected keyword `forever` to begin forever-loop"
+	body <- parseBody $ Message $ "expected `{` to open after forever statement beginning at " ++ displayLocation foreverAt
+	return $ Locate foreverAt $ Forever body
+
 parseBreak :: Parse Statement
 parseBreak = do
 	breakAt <- expectAt (TSpecial "break") $ Message $ "expected keyword `break` to begin break-statement"
@@ -107,6 +113,7 @@ parseStatement = do
 		Just (Locate _ (TSpecial "var")) -> parseDeclare
 		Just (Locate _ (TSpecial "if")) -> parseIf
 		Just (Locate _ (TSpecial "while")) -> parseWhile
+		Just (Locate _ (TSpecial "forever")) -> parseForever
 		Just (Locate _ (TSpecial "break")) -> parseBreak
 		Just (Locate _ (TSpecial "return")) -> parseReturn
 		_ -> parseAssignOrPerform
